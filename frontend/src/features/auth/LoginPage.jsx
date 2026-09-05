@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Layers, Lock, Mail, ArrowRight, Info, ShieldCheck, KeyRound } from 'lucide-react';
 import { authApi } from '@/api/auth.api';
+import { clearQueryCache } from '@/lib/queryClient';
 import { useAuthStore } from './authStore';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -16,6 +17,45 @@ const loginSchema = z.object({
   email: z.string().trim().min(1, 'Email is required').email('Enter a valid email address'),
   password: z.string().min(1, 'Password is required'),
 });
+
+// Matches backend/prisma/seed.js — one account per role, shared password
+const DEMO_QUICK_FILL = [
+  {
+    role: 'ADMIN',
+    label: 'Admin',
+    description: 'Full HR & Config',
+    email: 'admin@peoplepay360.com',
+    password: 'Password123!',
+  },
+  {
+    role: 'HR_MANAGER',
+    label: 'HR Manager',
+    description: 'HR Operations',
+    email: 'hr.manager@peoplepay360.com',
+    password: 'Password123!',
+  },
+  {
+    role: 'HR_PAYROLL_MANAGER',
+    label: 'HR Payroll Manager',
+    description: 'Payroll Management',
+    email: 'payroll.manager@peoplepay360.com',
+    password: 'Password123!',
+  },
+  {
+    role: 'HR_PAYROLL_USER',
+    label: 'HR Payroll User',
+    description: 'Payroll Processing',
+    email: 'payroll.user@peoplepay360.com',
+    password: 'Password123!',
+  },
+  {
+    role: 'EMPLOYEE',
+    label: 'Employee',
+    description: 'Self-Service Portal',
+    email: 'employee@peoplepay360.com',
+    password: 'Password123!',
+  },
+];
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -41,6 +81,7 @@ export function LoginPage() {
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     try {
+      clearQueryCache();
       const response = await authApi.login(data);
       const { accessToken, refreshToken, user } = response.data;
 
@@ -145,31 +186,19 @@ export function LoginPage() {
               <span>Demo Quick-Fill:</span>
             </div>
             <div className="grid grid-cols-2 gap-2 text-xs">
-              <button
-                type="button"
-                onClick={() =>
-                  fillCredentials('admin@peoplepay360.com', 'Password123!')
-                }
-                className="p-2 text-left rounded-lg border border-slate-200 bg-slate-50 hover:bg-brand-50 hover:border-brand-300 transition-colors group"
-              >
-                <div className="font-semibold text-slate-800 group-hover:text-brand-700">
-                  Admin
-                </div>
-                <div className="text-[10px] text-slate-500">Full HR &amp; Config</div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() =>
-                  fillCredentials('employee@peoplepay360.com', 'Password123!')
-                }
-                className="p-2 text-left rounded-lg border border-slate-200 bg-slate-50 hover:bg-brand-50 hover:border-brand-300 transition-colors group"
-              >
-                <div className="font-semibold text-slate-800 group-hover:text-brand-700">
-                  Employee
-                </div>
-                <div className="text-[10px] text-slate-500">Self-Service Portal</div>
-              </button>
+              {DEMO_QUICK_FILL.map((account) => (
+                <button
+                  key={account.role}
+                  type="button"
+                  onClick={() => fillCredentials(account.email, account.password)}
+                  className="p-2 text-left rounded-lg border border-slate-200 bg-slate-50 hover:bg-brand-50 hover:border-brand-300 transition-colors group"
+                >
+                  <div className="font-semibold text-slate-800 group-hover:text-brand-700">
+                    {account.label}
+                  </div>
+                  <div className="text-[10px] text-slate-500">{account.description}</div>
+                </button>
+              ))}
             </div>
           </div>
         </div>

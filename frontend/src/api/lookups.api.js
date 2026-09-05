@@ -3,7 +3,7 @@ import { apiClient } from './client';
 export const lookupsApi = {
   getDepartments: async (params = {}) => {
     const res = await apiClient.get('/departments', {
-      params: { limit: 100, sortBy: 'name', order: 'asc', ...params },
+      params: { limit: 100, sortBy: 'name', order: 'asc', isActive: true, ...params },
     });
     return res.data; // { success: true, data: [...], meta }
   },
@@ -17,7 +17,7 @@ export const lookupsApi = {
 
   getWorkingSchedules: async (params = {}) => {
     const res = await apiClient.get('/working-schedules', {
-      params: { limit: 100, sortBy: 'name', order: 'asc', ...params },
+      params: { limit: 100, sortBy: 'name', order: 'asc', isActive: true, ...params },
     });
     return res.data;
   },

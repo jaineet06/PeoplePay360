@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Menu, LogOut, User, ChevronDown } from 'lucide-react';
 import { useAuthStore } from '@/features/auth/authStore';
 import { authApi } from '@/api/auth.api';
+import { clearQueryCache } from '@/lib/queryClient';
 import { toast } from '@/components/ui/Toast';
 import { Badge } from '@/components/ui/Badge';
 import { getInitials } from '@/utils/formatters';
@@ -37,6 +38,7 @@ export function Topbar({ onToggleSidebar }) {
     } catch {
       // Even if server error, clear client session
     } finally {
+      clearQueryCache();
       clearAuth();
       toast.success('Signed out successfully.');
       navigate('/login');

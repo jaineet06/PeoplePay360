@@ -34,7 +34,11 @@ export const useAuthStore = create((set, get) => ({
   accessToken: initialSession?.accessToken || null,
   refreshToken: initialSession?.refreshToken || null,
   isAuthenticated: Boolean(initialSession?.user && (initialSession?.accessToken || initialSession?.refreshToken)),
-  isBooting: Boolean(!initialSession?.user),
+  // Always boot as true: even with a stored session the access token may be expired
+  // and firing protected-route API calls before the boot refresh completes causes a
+  // race condition — two concurrent refresh calls fight over the same DB token, the
+  // second gets "already rotated" (401), and clearAuth() bounces the user to login.
+  isBooting: true,
 
   setAuth: (user, accessToken, refreshToken = null) => {
     const finalRefreshToken = refreshToken || get().refreshToken;

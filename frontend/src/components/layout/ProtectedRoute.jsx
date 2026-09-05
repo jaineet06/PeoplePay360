@@ -2,6 +2,7 @@ import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/features/auth/authStore';
 import { PageSkeleton } from '@/components/ui/Skeleton';
+import { UnauthorizedPage } from '@/pages/UnauthorizedPage';
 
 export function ProtectedRoute({ allowedRoles }) {
   const location = useLocation();
@@ -21,14 +22,11 @@ export function ProtectedRoute({ allowedRoles }) {
   if (allowedRoles && allowedRoles.length > 0 && user) {
     const hasRole = allowedRoles.includes(user.role);
     if (!hasRole) {
-      // Role mismatch: if regular EMPLOYEE tries to access HR area, send to self-service profile
-      if (user.role === 'EMPLOYEE') {
-        return <Navigate to="/profile" replace />;
-      }
-      // Otherwise default to employees list
-      return <Navigate to="/employees" replace />;
+      return <UnauthorizedPage />;
     }
   }
 
   return <Outlet />;
 }
+
+export default ProtectedRoute;

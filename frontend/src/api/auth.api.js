@@ -1,5 +1,6 @@
 import { apiClient } from './client';
 import { getStoredRefreshToken } from '@/features/auth/authStore';
+import { refreshAccessToken } from '@/api/refreshSession';
 
 export const authApi = {
   login: async (credentials) => {
@@ -7,10 +8,9 @@ export const authApi = {
     return res.data; // { success: true, data: { accessToken, refreshToken, expiresIn, user } }
   },
 
-  refresh: async (tokenOverride = null) => {
-    const refreshToken = tokenOverride || getStoredRefreshToken();
-    const res = await apiClient.post('/auth/refresh', refreshToken ? { refreshToken } : {});
-    return res.data; // { success: true, data: { accessToken, refreshToken, expiresIn, user } }
+  refresh: async () => {
+    const data = await refreshAccessToken();
+    return { success: true, data: { ...data, expiresIn: 900 } };
   },
 
   logout: async () => {

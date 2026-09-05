@@ -50,7 +50,7 @@ export function DepartmentsPage() {
   } = useDepartments({
     page,
     limit,
-    search: debouncedSearch,
+    search: debouncedSearch || undefined,
   });
 
   const {
@@ -59,7 +59,7 @@ export function DepartmentsPage() {
   } = useJobPositions({
     page,
     limit,
-    search: debouncedSearch,
+    search: debouncedSearch || undefined,
   });
 
   const deleteDeptMutation = useDeleteDepartment();

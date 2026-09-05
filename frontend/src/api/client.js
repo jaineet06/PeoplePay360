@@ -1,5 +1,7 @@
 import axios from 'axios';
-import { useAuthStore, getAccessToken, getStoredRefreshToken } from '@/features/auth/authStore';
+import { useAuthStore, getAccessToken } from '@/features/auth/authStore';
+import { refreshAccessToken } from '@/api/refreshSession';
+import { clearQueryCache } from '@/lib/queryClient';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
@@ -65,16 +67,7 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const storedRefreshToken = getStoredRefreshToken();
-        // Attempt silent refresh via cookie or stored token payload
-        const response = await axios.post(
-          `${BASE_URL}/auth/refresh`,
-          storedRefreshToken ? { refreshToken: storedRefreshToken } : {},
-          { withCredentials: true }
-        );
-
-        const { accessToken, refreshToken, user } = response.data.data;
-        useAuthStore.getState().setAuth(user, accessToken, refreshToken);
+        const { accessToken } = await refreshAccessToken();
 
         processQueue(null, accessToken);
 
@@ -82,6 +75,7 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
+        clearQueryCache();
         useAuthStore.getState().clearAuth();
         // Redirect to login if unauthenticated
         if (window.location.pathname !== '/login') {
