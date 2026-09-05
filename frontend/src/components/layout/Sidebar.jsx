@@ -1,8 +1,10 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import {
+  LayoutDashboard,
   Users,
   Building2,
+  CalendarRange,
   FileSpreadsheet,
   CalendarCheck2,
   Clock,
@@ -18,8 +20,15 @@ import { cn } from '@/utils/cn';
 export function Sidebar({ isOpen, onClose }) {
   const user = useAuthStore((state) => state.user);
   const isEmployee = user?.role === 'EMPLOYEE';
+  const hasPayrollAccess = ['HR_PAYROLL_USER', 'HR_PAYROLL_MANAGER', 'ADMIN'].includes(user?.role);
 
   const hrNavItems = [
+    {
+      label: 'Dashboard',
+      path: '/dashboard',
+      icon: LayoutDashboard,
+      badge: null,
+    },
     {
       label: 'Employees',
       path: '/employees',
@@ -30,6 +39,12 @@ export function Sidebar({ isOpen, onClose }) {
       label: 'Departments',
       path: '/departments',
       icon: Building2,
+      badge: null,
+    },
+    {
+      label: 'Working Schedules',
+      path: '/schedules',
+      icon: CalendarRange,
       badge: null,
     },
     {
@@ -50,12 +65,16 @@ export function Sidebar({ isOpen, onClose }) {
       icon: Clock,
       badge: null,
     },
-    {
-      label: 'Payroll',
-      path: '/payroll',
-      icon: CircleDollarSign,
-      badge: null,
-    },
+    ...(hasPayrollAccess
+      ? [
+          {
+            label: 'Payroll',
+            path: '/payroll',
+            icon: CircleDollarSign,
+            badge: null,
+          },
+        ]
+      : []),
   ];
 
   const employeeNavItems = [
@@ -124,6 +143,7 @@ export function Sidebar({ isOpen, onClose }) {
           {/* Close button for mobile */}
           <button
             type="button"
+            aria-label="Close sidebar"
             onClick={onClose}
             className="md:hidden text-slate-400 hover:text-white p-1 rounded-md"
           >
@@ -173,10 +193,10 @@ export function Sidebar({ isOpen, onClose }) {
           <div className="rounded-lg bg-slate-850/80 p-3 border border-slate-800 text-xs">
             <div className="flex items-center space-x-1.5 text-emerald-400 font-semibold mb-1">
               <Sparkles className="h-3.5 w-3.5" />
-              <span>Full System Active</span>
+              <span>System Operational</span>
             </div>
             <p className="text-[11px] text-slate-400 leading-relaxed">
-              HR Operations, Payroll Engine, Attendance, Time Off, &amp; Self-Service are operational.
+              Logged in as <strong className="text-slate-200">{user?.role?.replace(/_/g, ' ')}</strong>
             </p>
           </div>
         </div>

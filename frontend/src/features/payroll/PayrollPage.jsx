@@ -21,6 +21,7 @@ import { StatusPill } from '@/components/ui/StatusPill';
 import { Badge } from '@/components/ui/Badge';
 import { usePagination } from '@/hooks/usePagination';
 import { formatCurrency, formatDate } from '@/utils/formatters';
+import { useAuthStore } from '@/features/auth/authStore';
 import {
   usePayruns,
   useSalaryStructures,
@@ -36,6 +37,8 @@ import { SalarySimulatorModal } from './components/SalarySimulatorModal';
 
 export function PayrollPage() {
   const navigate = useNavigate();
+  const user = useAuthStore((state) => state.user);
+  const canManageStructures = ['HR_PAYROLL_MANAGER', 'ADMIN'].includes(user?.role);
   const [activeTab, setActiveTab] = useState('payruns');
   const { page, limit, onPageChange, onLimitChange } = usePagination(1, 10);
 
@@ -199,17 +202,19 @@ export function PayrollPage() {
             >
               Simulate Engine
             </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              leftIcon={Plus}
-              onClick={() => {
-                setEditingStructure(null);
-                setStructureModalOpen(true);
-              }}
-            >
-              New Structure
-            </Button>
+            {canManageStructures && (
+              <Button
+                variant="primary"
+                size="sm"
+                leftIcon={Plus}
+                onClick={() => {
+                  setEditingStructure(null);
+                  setStructureModalOpen(true);
+                }}
+              >
+                New Structure
+              </Button>
+            )}
           </div>
         )}
       </div>
@@ -248,17 +253,19 @@ export function PayrollPage() {
               <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
                 Salary Structures
               </span>
-              <Button
-                variant="ghost"
-                size="xs"
-                leftIcon={Plus}
-                onClick={() => {
-                  setEditingStructure(null);
-                  setStructureModalOpen(true);
-                }}
-              >
-                Add
-              </Button>
+              {canManageStructures && (
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  leftIcon={Plus}
+                  onClick={() => {
+                    setEditingStructure(null);
+                    setStructureModalOpen(true);
+                  }}
+                >
+                  Add
+                </Button>
+              )}
             </div>
 
             <div className="space-y-1.5">
@@ -281,17 +288,19 @@ export function PayrollPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-1" onClick={(e) => e.stopPropagation()}>
-                      <Button
-                        variant="ghost"
-                        size="xs"
-                        leftIcon={Edit2}
-                        onClick={() => {
-                          setEditingStructure(s);
-                          setStructureModalOpen(true);
-                        }}
-                      />
-                    </div>
+                    {canManageStructures && (
+                      <div className="flex items-center space-x-1" onClick={(e) => e.stopPropagation()}>
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          leftIcon={Edit2}
+                          onClick={() => {
+                            setEditingStructure(s);
+                            setStructureModalOpen(true);
+                          }}
+                        />
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -311,6 +320,11 @@ export function PayrollPage() {
               </div>
 
               <div className="flex items-center space-x-2">
+                {!canManageStructures && (
+                  <Badge variant="slate" size="xs">
+                    Read-Only Mode
+                  </Badge>
+                )}
                 <Button
                   variant="outline"
                   size="xs"
@@ -319,17 +333,19 @@ export function PayrollPage() {
                 >
                   Test Formula
                 </Button>
-                <Button
-                  variant="primary"
-                  size="xs"
-                  leftIcon={Plus}
-                  onClick={() => {
-                    setEditingRule(null);
-                    setRuleModalOpen(true);
-                  }}
-                >
-                  Add Rule
-                </Button>
+                {canManageStructures && (
+                  <Button
+                    variant="primary"
+                    size="xs"
+                    leftIcon={Plus}
+                    onClick={() => {
+                      setEditingRule(null);
+                      setRuleModalOpen(true);
+                    }}
+                  >
+                    Add Rule
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -377,46 +393,48 @@ export function PayrollPage() {
                       </div>
                     </div>
 
-                    {/* Reorder and Edit Actions */}
-                    <div className="flex items-center space-x-1">
-                      <Button
-                        variant="ghost"
-                        size="xs"
-                        disabled={idx === 0 || reorderMutation.isPending}
-                        onClick={() => handleMoveRule(idx, 'up')}
-                        leftIcon={ArrowUp}
-                      />
-                      <Button
-                        variant="ghost"
-                        size="xs"
-                        disabled={idx === rulesData.length - 1 || reorderMutation.isPending}
-                        onClick={() => handleMoveRule(idx, 'down')}
-                        leftIcon={ArrowDown}
-                      />
-                      <Button
-                        variant="ghost"
-                        size="xs"
-                        leftIcon={Edit2}
-                        onClick={() => {
-                          setEditingRule(rule);
-                          setRuleModalOpen(true);
-                        }}
-                      />
-                      <Button
-                        variant="ghost"
-                        size="xs"
-                        className="text-rose-600 hover:bg-rose-50"
-                        leftIcon={Trash2}
-                        onClick={async () => {
-                          if (window.confirm(`Delete rule ${rule.code}?`)) {
-                            await deleteRuleMutation.mutateAsync({
-                              structureId: effectiveStructureId,
-                              ruleId: rule.id,
-                            });
-                          }
-                        }}
-                      />
-                    </div>
+                    {/* Reorder and Edit Actions (Restricted to HR_PAYROLL_MANAGER and ADMIN) */}
+                    {canManageStructures && (
+                      <div className="flex items-center space-x-1">
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          disabled={idx === 0 || reorderMutation.isPending}
+                          onClick={() => handleMoveRule(idx, 'up')}
+                          leftIcon={ArrowUp}
+                        />
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          disabled={idx === rulesData.length - 1 || reorderMutation.isPending}
+                          onClick={() => handleMoveRule(idx, 'down')}
+                          leftIcon={ArrowDown}
+                        />
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          leftIcon={Edit2}
+                          onClick={() => {
+                            setEditingRule(rule);
+                            setRuleModalOpen(true);
+                          }}
+                        />
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          className="text-rose-600 hover:bg-rose-50"
+                          leftIcon={Trash2}
+                          onClick={async () => {
+                            if (window.confirm(`Delete rule ${rule.code}?`)) {
+                              await deleteRuleMutation.mutateAsync({
+                                structureId: effectiveStructureId,
+                                ruleId: rule.id,
+                              });
+                            }
+                          }}
+                        />
+                      </div>
+                    )}
                   </div>
                 ))
               ) : (

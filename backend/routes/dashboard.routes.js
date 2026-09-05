@@ -13,7 +13,7 @@ import {
 
 const router = express.Router();
 
-router.use(authenticate, authorize(...AUTH.PAYROLL_READ));
+router.use(authenticate, authorize(...AUTH.HR));
 
 router.get('/summary', validate({ query: summaryQuery }), asyncHandler(dashboardController.summary));
 router.get('/salary-by-department', validate({ query: salaryByDepartmentQuery }), asyncHandler(dashboardController.salaryByDepartment));

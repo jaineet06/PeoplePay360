@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from '@/features/auth/authStore';
-import { authApi } from '@/api/auth.api';
+import { hasValidStoredSession, refreshAccessToken } from '@/api/refreshSession';
 import { AppRoutes } from '@/routes/AppRoutes';
 import { Toaster } from '@/components/ui/Toast';
 import { ErrorBoundary } from '@/components/layout/ErrorBoundary';
@@ -24,7 +24,7 @@ const queryClient = new QueryClient({
 });
 
 export function App() {
-  const { setAuth, clearAuth, setBooting } = useAuthStore();
+  const { clearAuth, setBooting } = useAuthStore();
 
   // App boot: silent refresh to persist session across browser reloads
   useEffect(() => {
@@ -32,11 +32,11 @@ export function App() {
 
     async function initSession() {
       try {
-        const response = await authApi.refresh();
-        const { user, accessToken, refreshToken } = response.data;
-        if (isMounted) {
-          setAuth(user, accessToken, refreshToken);
+        if (hasValidStoredSession()) {
+          if (isMounted) setBooting(false);
+          return;
         }
+        await refreshAccessToken();
       } catch (err) {
         // Only clear auth if the server returned an explicit 401 (revoked/expired)
         if (isMounted && err?.response?.status === 401) {
@@ -54,7 +54,7 @@ export function App() {
     return () => {
       isMounted = false;
     };
-  }, [setAuth, clearAuth, setBooting]);
+  }, [clearAuth, setBooting]);
 
   return (
     <ErrorBoundary>

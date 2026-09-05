@@ -8,6 +8,9 @@ import { useAuthStore } from '@/features/auth/authStore';
 // Lazy-loaded routes for code-splitting
 const LoginPage = lazy(() => import('@/features/auth/LoginPage'));
 
+// Dashboard
+const DashboardPage = lazy(() => import('@/features/dashboard/DashboardPage'));
+
 // Employees
 const EmployeeListPage = lazy(() => import('@/features/employees/EmployeeListPage'));
 const EmployeeKanbanPage = lazy(() => import('@/features/employees/EmployeeKanbanPage'));
@@ -17,6 +20,9 @@ const SelfServiceProfilePage = lazy(() => import('@/features/employees/SelfServi
 
 // Departments & Positions
 const DepartmentsPage = lazy(() => import('@/features/departments/DepartmentsPage'));
+
+// Working Schedules
+const SchedulesPage = lazy(() => import('@/features/schedules/SchedulesPage'));
 
 // Contracts
 const ContractsPage = lazy(() => import('@/features/contracts/ContractsPage'));
@@ -35,6 +41,9 @@ const PayrunDetailPage = lazy(() => import('@/features/payroll/PayrunDetailPage'
 const MyAttendancePage = lazy(() => import('@/features/selfService/MyAttendancePage'));
 const MyTimeOffPage = lazy(() => import('@/features/selfService/MyTimeOffPage'));
 const MyPayslipsPage = lazy(() => import('@/features/selfService/MyPayslipsPage'));
+
+// 404 Not Found Page
+const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 
 // Role definitions
 const HR_ROLES = ['HR_MANAGER', 'HR_PAYROLL_USER', 'HR_PAYROLL_MANAGER', 'ADMIN'];
@@ -57,7 +66,7 @@ export function AppRoutes() {
               path="/"
               element={
                 <Navigate
-                  to={user?.role === 'EMPLOYEE' ? '/profile' : '/employees'}
+                  to={user?.role === 'EMPLOYEE' ? '/profile' : '/dashboard'}
                   replace
                 />
               }
@@ -69,14 +78,16 @@ export function AppRoutes() {
             <Route path="/my-time-off" element={<MyTimeOffPage />} />
             <Route path="/my-payslips" element={<MyPayslipsPage />} />
 
-            {/* HR / Admin Employee Directory Routes */}
+            {/* HR / Admin Operations Directory Routes */}
             <Route element={<ProtectedRoute allowedRoles={HR_ROLES} />}>
+              <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/employees" element={<EmployeeListPage />} />
               <Route path="/employees/kanban" element={<EmployeeKanbanPage />} />
               <Route path="/employees/new" element={<EmployeeFormPage />} />
               <Route path="/employees/:id" element={<EmployeeDetailPage />} />
               <Route path="/employees/:id/edit" element={<EmployeeFormPage />} />
               <Route path="/departments" element={<DepartmentsPage />} />
+              <Route path="/schedules" element={<SchedulesPage />} />
               <Route path="/contracts" element={<ContractsPage />} />
               <Route path="/attendance" element={<AttendancePage />} />
               <Route path="/time-off" element={<TimeOffPage />} />
@@ -87,11 +98,14 @@ export function AppRoutes() {
               <Route path="/payroll" element={<PayrollPage />} />
               <Route path="/payroll/payruns/:id" element={<PayrunDetailPage />} />
             </Route>
+
+            {/* In-app Catch-all 404 */}
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>
 
-        {/* Catch-all fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* Global Catch-all fallback */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
   );

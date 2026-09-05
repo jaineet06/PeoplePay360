@@ -229,7 +229,8 @@ export function EmployeeFormPage() {
 
   const workingScheduleOptions = workingSchedules.map((s) => ({
     value: s.id,
-    label: `${s.name} (${s.hoursPerWeek || 40}h/wk)`,
+    label: `${s.name} (${s.code})`,
+    subtext: `${Number(s.hoursPerWeek || 40).toFixed(1)} hrs/wk • ${s.workingDaysPerWeek || 5} days/wk • ${s.timezone || 'Asia/Kolkata'}`,
   }));
 
   const managerOptions = managers

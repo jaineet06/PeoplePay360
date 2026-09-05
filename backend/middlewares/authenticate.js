@@ -10,6 +10,7 @@ export default async function authenticate(req, res, next) {
 
   try {
     const decoded = verifyAccessToken(header.slice(7));
+    console.log(decoded);
     const user = await prisma.user.findUnique({
       where: { id: decoded.sub },
       select: {
