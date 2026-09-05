@@ -44,8 +44,10 @@ function timeOffWhere(query = {}) {
 }
 
 function computeAttendanceHealth(groups) {
-  const counts = Object.fromEntries(groups.map((g) => [g.status, g._count]));
-  const total = groups.reduce((sum, g) => sum + g._count, 0);
+  const counts = Object.fromEntries(
+    groups.map((g) => [g.status, typeof g._count === 'object' && g._count !== null ? (g._count._all ?? 0) : Number(g._count ?? 0)])
+  );
+  const total = Object.values(counts).reduce((sum, c) => sum + c, 0);
   if (total === 0) return { score: 100, total: 0, breakdown: counts };
 
   const healthy = (counts.PRESENT ?? 0)
