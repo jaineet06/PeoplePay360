@@ -1,13 +1,7 @@
-'use strict';
-
-class ApiResponse {
+export default class ApiResponse {
   static success(res, data, options = {}) {
     const payload = { success: true, data };
-
-    if (options.meta !== undefined) {
-      payload.meta = options.meta;
-    }
-
+    if (options.meta !== undefined) payload.meta = options.meta;
     return res.status(options.statusCode || 200).json(payload);
   }
 
@@ -19,5 +13,3 @@ class ApiResponse {
     return ApiResponse.success(res, data, { meta });
   }
 }
-
-module.exports = ApiResponse;

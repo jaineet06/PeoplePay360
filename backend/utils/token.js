@@ -1,66 +1,38 @@
-'use strict';
+import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
+import env from '../configs/env.js';
 
-const crypto = require('crypto');
-const jwt = require('jsonwebtoken');
-const env = require('../configs/env');
+export const REFRESH_COOKIE_NAME = 'refreshToken';
 
-const REFRESH_COOKIE_NAME = 'refreshToken';
-
-function signAccessToken(payload) {
-  return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
-    expiresIn: env.JWT_ACCESS_EXPIRES_IN,
-  });
+export function signAccessToken(payload) {
+  return jwt.sign(payload, env.JWT_ACCESS_SECRET, { expiresIn: env.JWT_ACCESS_EXPIRES_IN });
 }
 
-function signRefreshToken(payload) {
-  return jwt.sign(payload, env.JWT_REFRESH_SECRET, {
-    expiresIn: env.JWT_REFRESH_EXPIRES_IN,
-  });
+export function signRefreshToken(payload) {
+  return jwt.sign(payload, env.JWT_REFRESH_SECRET, { expiresIn: env.JWT_REFRESH_EXPIRES_IN });
 }
 
-function verifyAccessToken(token) {
+export function verifyAccessToken(token) {
   return jwt.verify(token, env.JWT_ACCESS_SECRET);
 }
 
-function verifyRefreshToken(token) {
+export function verifyRefreshToken(token) {
   return jwt.verify(token, env.JWT_REFRESH_SECRET);
 }
 
-function hashToken(token) {
+export function hashToken(token) {
   return crypto.createHash('sha256').update(token).digest('hex');
 }
 
-function getRefreshCookieOptions() {
-  const maxAgeMs = parseDurationToMs(env.JWT_REFRESH_EXPIRES_IN);
-
+export function getRefreshCookieOptions() {
+  const match = /^(\d+)([smhd])$/.exec(env.JWT_REFRESH_EXPIRES_IN);
+  const mult = { s: 1000, m: 60_000, h: 3_600_000, d: 86_400_000 };
+  const maxAge = match ? Number(match[1]) * mult[match[2]] : 7 * 86_400_000;
   return {
     httpOnly: true,
     secure: env.cookieSecure,
     sameSite: env.COOKIE_SAME_SITE,
-    maxAge: maxAgeMs,
+    maxAge,
     path: '/api/v1/auth',
   };
 }
-
-function parseDurationToMs(value) {
-  const match = /^(\d+)([smhd])$/.exec(value);
-  if (!match) {
-    return 7 * 24 * 60 * 60 * 1000;
-  }
-
-  const amount = Number(match[1]);
-  const unit = match[2];
-
-  const multipliers = { s: 1000, m: 60_000, h: 3_600_000, d: 86_400_000 };
-  return amount * multipliers[unit];
-}
-
-module.exports = {
-  REFRESH_COOKIE_NAME,
-  signAccessToken,
-  signRefreshToken,
-  verifyAccessToken,
-  verifyRefreshToken,
-  hashToken,
-  getRefreshCookieOptions,
-};

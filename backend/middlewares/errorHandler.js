@@ -1,14 +1,19 @@
-'use strict';
+import ApiError from '../utils/ApiError.js';
+import logger from '../utils/logger.js';
+import env from '../configs/env.js';
+import { Prisma } from '@prisma/client';
 
-const ApiError = require('../utils/ApiError');
-const logger = require('../utils/logger');
-const env = require('../configs/env');
-const { Prisma } = require('@prisma/client');
-
-function errorHandler(err, req, res, next) {
-  if (res.headersSent) {
-    return next(err);
+function mapPrismaError(err) {
+  switch (err.code) {
+    case 'P2002': return { statusCode: 409, message: 'A record with this value already exists.' };
+    case 'P2025': return { statusCode: 404, message: 'Record not found.' };
+    case 'P2003': return { statusCode: 409, message: 'Operation violates a related record constraint.' };
+    default: return { statusCode: 500, message: 'Database error.' };
   }
+}
+
+export default function errorHandler(err, req, res, next) {
+  if (res.headersSent) return next(err);
 
   let statusCode = 500;
   let message = 'Internal server error';
@@ -29,52 +34,15 @@ function errorHandler(err, req, res, next) {
     statusCode = 401;
     message = 'Invalid or expired token.';
     isOperational = true;
-  } else if (err.name === 'ZodError') {
-    statusCode = 400;
-    message = 'Validation failed.';
-    errors = err.issues.map((issue) => ({
-      field: issue.path.join('.'),
-      message: issue.message,
-    }));
-    isOperational = true;
   }
 
   if (!isOperational || statusCode >= 500) {
-    logger.error('Unhandled error', {
-      path: req.originalUrl,
-      method: req.method,
-      message: err.message,
-      stack: err.stack,
-    });
+    logger.error('Request error', { path: req.originalUrl, message: err.message, stack: err.stack });
   }
 
-  const payload = {
-    success: false,
-    message,
-  };
-
-  if (errors?.length) {
-    payload.errors = errors;
-  }
-
-  if (env.isDev && statusCode >= 500) {
-    payload.stack = err.stack;
-  }
+  const payload = { success: false, message };
+  if (errors?.length) payload.errors = errors;
+  if (env.isDev && statusCode >= 500) payload.stack = err.stack;
 
   res.status(statusCode).json(payload);
 }
-
-function mapPrismaError(err) {
-  switch (err.code) {
-    case 'P2002':
-      return { statusCode: 409, message: 'A record with this value already exists.' };
-    case 'P2025':
-      return { statusCode: 404, message: 'Record not found.' };
-    case 'P2003':
-      return { statusCode: 409, message: 'Operation violates a related record constraint.' };
-    default:
-      return { statusCode: 500, message: 'Database error.' };
-  }
-}
-
-module.exports = errorHandler;

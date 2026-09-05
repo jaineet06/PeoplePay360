@@ -240,6 +240,11 @@ model Employee {
   dateOfJoining DateTime  @map("date_of_joining") @db.Date
   dateOfExit    DateTime? @map("date_of_exit") @db.Date
 
+  bankAccountName   String? @map("bank_account_name")
+  bankAccountNumber String? @map("bank_account_number")
+  bankIfscCode      String? @map("bank_ifsc_code")
+  bankName          String? @map("bank_name")
+
   deletedAt DateTime? @map("deleted_at")
 
   login       User? @relation("EmployeeLogin")
@@ -559,6 +564,11 @@ model Payrun {
   totalNet        Decimal @default(0) @map("total_net") @db.Decimal(16, 2)
   employeeCount   Int     @default(0) @map("employee_count")
   currency        String  @default("INR") @db.Char(3)
+
+  paymentDate DateTime? @map("payment_date") @db.Date
+  computedAt  DateTime? @map("computed_at")
+  validatedAt DateTime? @map("validated_at")
+  paidAt      DateTime? @map("paid_at")
 
   createdById String @map("created_by_id") @db.Uuid
   createdBy   User   @relation("PayrunCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
