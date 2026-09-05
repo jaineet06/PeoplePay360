@@ -8,3 +8,7 @@ export const listQuery = paginationQuery(SORTABLE).extend({
 }).strict();
 
 export const userIdParams = z.object({ id: z.string().uuid() }).strict();
+
+export const changeRoleBody = z.object({
+  role: z.enum(ROLES, { errorMap: () => ({ message: 'Invalid role value.' }) }),
+}).strict();

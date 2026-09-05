@@ -29,10 +29,8 @@ export const lookupsApi = {
     return res.data;
   },
 
-  getSalaryStructures: async (params = {}) => {
-    const res = await apiClient.get('/salary-structures', {
-      params: { limit: 100, sortBy: 'name', order: 'asc', isActive: true, ...params },
-    });
+  getSalaryStructures: async () => {
+    const res = await apiClient.get('/salary-structures/options');
     return res.data;
   },
 

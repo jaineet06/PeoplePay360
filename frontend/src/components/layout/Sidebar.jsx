@@ -13,6 +13,7 @@ import {
   X,
   Layers,
   Sparkles,
+  ShieldCheck,
 } from 'lucide-react';
 import { useAuthStore } from '@/features/auth/authStore';
 import { cn } from '@/utils/cn';
@@ -75,6 +76,12 @@ export function Sidebar({ isOpen, onClose }) {
           },
         ]
       : []),
+    {
+      label: 'User Management',
+      path: '/users',
+      icon: ShieldCheck,
+      badge: null,
+    },
   ];
 
   const employeeNavItems = [

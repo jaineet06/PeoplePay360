@@ -9,6 +9,11 @@ export async function listStructures(req, res) {
   return ApiResponse.paginated(res, result.salaryStructures, result.meta);
 }
 
+export async function listStructureOptions(req, res) {
+  const options = await salaryService.listStructureOptions();
+  return ApiResponse.success(res, options);
+}
+
 export async function getStructure(req, res) {
   const structure = await salaryService.getStructureById(req.params.id);
   return ApiResponse.success(res, { salaryStructure: structure });

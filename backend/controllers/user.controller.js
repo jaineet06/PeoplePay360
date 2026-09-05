@@ -15,3 +15,8 @@ export async function getById(req, res) {
   if (!user) throw ApiError.notFound('User not found.');
   return ApiResponse.success(res, { user });
 }
+
+export async function changeRole(req, res) {
+  const user = await userService.changeUserRole(req.user.id, req.params.id, req.body.role);
+  return ApiResponse.success(res, { user });
+}

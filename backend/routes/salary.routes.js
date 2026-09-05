@@ -28,6 +28,13 @@ router.get(
   asyncHandler(salaryController.listStructures),
 );
 
+// Lightweight options endpoint — id/name/code only, accessible to HR_MANAGER for contract dropdowns
+router.get(
+  '/options',
+  authorize(...AUTH.HR),
+  asyncHandler(salaryController.listStructureOptions),
+);
+
 router.post(
   '/',
   authorize(...AUTH.PAYROLL_WRITE),

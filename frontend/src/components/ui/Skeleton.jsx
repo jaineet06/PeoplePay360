@@ -31,6 +31,27 @@ export function TableRowSkeleton({ columns = 5, rows = 5 }) {
   );
 }
 
+export function TableSkeleton({ rows = 5, cols = 5 }) {
+  return (
+    <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900 shadow-card">
+      <table className="w-full text-xs">
+        <thead className="border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60">
+          <tr>
+            {Array.from({ length: cols }).map((_, i) => (
+              <th key={i} className="py-3 px-4 text-left">
+                <Skeleton className="h-3 w-20" />
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <TableRowSkeleton columns={cols} rows={rows} />
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export function CardSkeleton({ count = 3 }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

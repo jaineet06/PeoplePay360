@@ -39,6 +39,15 @@ export async function listStructures(query) {
   };
 }
 
+/** Lightweight lookup — only id/name/code for active structures. Accessible to HR_MANAGER. */
+export async function listStructureOptions() {
+  return prisma.salaryStructure.findMany({
+    where: { isActive: true },
+    select: { id: true, name: true, code: true },
+    orderBy: { name: 'asc' },
+  });
+}
+
 export async function getStructureById(id, { includeRules = true } = {}) {
   const structure = await prisma.salaryStructure.findUnique({
     where: { id },

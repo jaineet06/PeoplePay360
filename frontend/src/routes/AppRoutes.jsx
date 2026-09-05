@@ -48,6 +48,9 @@ const NotificationsPage = lazy(() => import('@/pages/NotificationsPage'));
 // 404 Not Found Page
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 
+// User & Role Management
+const UsersPage = lazy(() => import('@/features/users/UsersPage'));
+
 // Role definitions
 const HR_ROLES = ['HR_MANAGER', 'HR_PAYROLL_USER', 'HR_PAYROLL_MANAGER', 'ADMIN'];
 const PAYROLL_ROLES = ['HR_PAYROLL_USER', 'HR_PAYROLL_MANAGER', 'ADMIN'];
@@ -95,6 +98,7 @@ export function AppRoutes() {
               <Route path="/contracts" element={<ContractsPage />} />
               <Route path="/attendance" element={<AttendancePage />} />
               <Route path="/time-off" element={<TimeOffPage />} />
+              <Route path="/users" element={<UsersPage />} />
             </Route>
 
             {/* Payroll Routes */}
