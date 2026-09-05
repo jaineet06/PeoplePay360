@@ -5,8 +5,7 @@ import { computeSalaryRules } from '../utils/salaryEngine.js';
 import { nextPayrunRef, nextPayslipRef, periodLabel } from '../utils/reference.js';
 import { buildPaginationMeta, buildOrderBy } from '../utils/pagination.js';
 import { renderPayslipPdf } from '../utils/payslipPdf.js';
-import nodemailer from 'nodemailer';
-import env from '../configs/env.js';
+import { sendMail, sleep, classifySmtpError } from '../utils/email.js';
 import { Prisma } from '@prisma/client';
 import {
   createNotification,
@@ -517,17 +516,7 @@ export async function markPaid(id, paymentDate) {
   return paidPayrun;
 }
 
-function getMailTransporter() {
-  if (!env.hasSmtp) {
-    throw ApiError.unprocessable('SMTP is not configured. Set SMTP_HOST and SMTP_USER.');
-  }
-  return nodemailer.createTransport({
-    host: env.SMTP_HOST,
-    port: env.SMTP_PORT ?? 587,
-    secure: env.SMTP_PORT === 465,
-    auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
-  });
-}
+// Email transporter is now a singleton in utils/email.js — no local setup needed here.
 
 export async function sendPayslipEmails(id) {
   const payrun = await getById(id);
@@ -535,7 +524,6 @@ export async function sendPayslipEmails(id) {
     throw ApiError.conflict('Payrun must be VALIDATED or PAID before sending payslips.');
   }
 
-  const transporter = getMailTransporter();
   const sent = [];
   const failed = [];
 
@@ -553,14 +541,23 @@ export async function sendPayslipEmails(id) {
     },
   });
 
+  // Send sequentially with a short delay between messages to respect Brevo's
+  // daily sending limits (free tier: 300/day; starter: varies by plan).
+  // A tight Promise.all() against a large payslip batch risks tripping rate limits.
   for (const payslip of payslips) {
     try {
       const pdfBuffer = await renderPayslipPdf(payslip);
-      await transporter.sendMail({
-        from: env.MAIL_FROM,
+      await sendMail({
         to: payslip.employee.workEmail,
         subject: `Payslip ${payslip.periodLabel} — ${payslip.reference}`,
-        text: `Dear ${payslip.employee.fullName},\n\nPlease find attached your payslip for ${payslip.periodLabel}.\n\nRegards,\nPeoplePay360 Payroll`,
+        text: [
+          `Dear ${payslip.employee.fullName},`,
+          '',
+          `Please find attached your payslip for ${payslip.periodLabel}.`,
+          '',
+          'Regards,',
+          'PeoplePay360 Payroll',
+        ].join('\n'),
         attachments: [{
           filename: `${payslip.reference}.pdf`,
           content: pdfBuffer,
@@ -574,14 +571,18 @@ export async function sendPayslipEmails(id) {
         reference: payslip.reference,
       });
     } catch (err) {
+      const reason = classifySmtpError(err);
       failed.push({
         employeeId: payslip.employeeId,
         email: payslip.employee.workEmail,
         payslipId: payslip.id,
         reference: payslip.reference,
+        reason,                              // RATE_LIMITED | INVALID_ADDRESS | AUTH_FAILED | UNKNOWN
         error: err.message ?? 'Email delivery failed.',
       });
     }
+    // 300 ms between sends — keeps throughput well under 1 req/sec for any plan
+    await sleep(300);
   }
 
   return { payrunId: id, sent, failed };

@@ -18,16 +18,24 @@ const envSchema = z.object({
   RATE_LIMIT_MAX: z.coerce.number().int().positive().default(100),
   AUTH_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(900_000),
   AUTH_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(5),
-  SMTP_HOST: z.string().optional(),
-  SMTP_PORT: z.coerce.number().optional(),
-  SMTP_USER: z.string().optional(),
-  SMTP_PASS: z.string().optional(),
-  MAIL_FROM: z.string().default('payroll@peoplepay360.com'),
+  // ── Email / Brevo SMTP ─────────────────────────────────────────────────────
+  // All four are REQUIRED — the app will refuse to start without them, which
+  // surfaces misconfiguration immediately rather than on the first email attempt.
+  EMAIL_SMTP_HOST: z.string().min(1),
+  EMAIL_SMTP_PORT: z.coerce.number().int().positive().default(587),
+  EMAIL_SMTP_USER: z.string().min(1),
+  EMAIL_SMTP_PASS: z.string().min(1),
+  EMAIL_FROM_ADDRESS: z.string().email(),
+  EMAIL_FROM_NAME: z.string().default('PeoplePay360'),
 });
 
 const parsed = envSchema.safeParse(process.env);
 if (!parsed.success) {
-  console.error('Invalid environment:', parsed.error.flatten().fieldErrors);
+  console.error('❌  Invalid environment — fix the following before starting the server:');
+  const errors = parsed.error.flatten().fieldErrors;
+  for (const [field, messages] of Object.entries(errors)) {
+    console.error(`    ${field}: ${messages.join(', ')}`);
+  }
   process.exit(1);
 }
 
@@ -39,5 +47,5 @@ export default {
   isProd: env.NODE_ENV === 'production',
   corsOrigins: env.CORS_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean),
   cookieSecure: env.COOKIE_SECURE === 'true',
-  hasSmtp: Boolean(env.SMTP_HOST && env.SMTP_USER),
 };
+

@@ -14,6 +14,7 @@ import routes from './routes/index.js';
 import errorHandler from './middlewares/errorHandler.js';
 import { generalLimiter } from './middlewares/rateLimiter.js';
 import logger from './utils/logger.js';
+import { verifyEmailConfig } from './utils/email.js';
 
 const app = express();
 const server = http.createServer(app);
@@ -54,6 +55,9 @@ process.on('SIGINT', () => shutdown('SIGINT'));
 
 server.listen(env.PORT, () => {
   logger.info(`PeoplePay360 API listening on port ${env.PORT}`, { env: env.NODE_ENV });
+  // Non-blocking SMTP check — logs success or failure loudly; does not crash on
+  // transient network error but WILL surface bad credentials / missing verified sender.
+  verifyEmailConfig();
 });
 
 export default app;
