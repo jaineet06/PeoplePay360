@@ -8,7 +8,8 @@ export function formatDate(dateString) {
       month: 'short',
       day: 'numeric',
     });
-  } catch {
+  } 
+  catch {
     return '—';
   }
 }

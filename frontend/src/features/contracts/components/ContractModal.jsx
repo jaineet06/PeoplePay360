@@ -115,7 +115,8 @@ export function ContractModal({
     try {
       if (isEditing) {
         await updateMutation.mutateAsync({ id: contract.id, data: payload });
-      } else {
+      } 
+      else {
         await createMutation.mutateAsync(payload);
       }
       onClose();
@@ -125,7 +126,8 @@ export function ContractModal({
         const conflictMsg = err.response.data?.message || 'Dates overlap with an existing active contract for this employee.';
         setError('startDate', { type: 'manual', message: conflictMsg });
         setError('status', { type: 'manual', message: conflictMsg });
-      } else {
+      } 
+      else {
         handleApiError(err, setError, 'Failed to save contract');
       }
     }
