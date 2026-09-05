@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useAuthStore, getAccessToken } from '@/features/auth/authStore';
 import { refreshAccessToken } from '@/api/refreshSession';
+import { clearQueryCache } from '@/lib/queryClient';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
@@ -74,6 +75,7 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
+        clearQueryCache();
         useAuthStore.getState().clearAuth();
         // Redirect to login if unauthenticated
         if (window.location.pathname !== '/login') {

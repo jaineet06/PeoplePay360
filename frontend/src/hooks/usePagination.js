@@ -8,6 +8,15 @@ export function usePagination(initialPage = 1, initialLimit = 20) {
   const prevPage = useCallback(() => setPage((p) => Math.max(1, p - 1)), []);
   const resetPage = useCallback(() => setPage(1), []);
 
+  const onPageChange = useCallback((newPage) => {
+    setPage(Math.max(1, newPage));
+  }, []);
+
+  const onLimitChange = useCallback((newLimit) => {
+    setLimit(newLimit);
+    setPage(1);
+  }, []);
+
   return {
     page,
     limit,
@@ -16,5 +25,7 @@ export function usePagination(initialPage = 1, initialLimit = 20) {
     nextPage,
     prevPage,
     resetPage,
+    onPageChange,
+    onLimitChange,
   };
 }

@@ -14,16 +14,7 @@ import { formatCurrency } from '@/utils/formatters';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 
-const BAR_COLORS = [
-  '#4f46e5', // Brand 600
-  '#6366f1', // Indigo 500
-  '#0d9488', // Teal 600
-  '#0284c7', // Sky 600
-  '#8b5cf6', // Purple 500
-  '#f59e0b', // Amber 500
-  '#ec4899', // Pink 500
-  '#10b981', // Emerald 500
-];
+const BAR_COLORS = ['#4f46e5', '#6366f1', '#818cf8', '#4338ca', '#3730a3', '#312e81', '#a5b4fc', '#c7d2fe'];
 
 function CustomTooltip({ active, payload, label }) {
   if (active && payload && payload.length) {

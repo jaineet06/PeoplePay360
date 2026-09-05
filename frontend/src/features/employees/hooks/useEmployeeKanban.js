@@ -1,7 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { employeeApi } from '@/api/employee.api';
 
-export function useEmployeeKanban({ groupBy = 'status', search = '', departmentId = '' } = {}) {
+export function useEmployeeKanban(params = {}) {
+  const { groupBy = 'status', search, departmentId } = params;
+
   return useQuery({
     queryKey: ['employees-kanban', { groupBy, search, departmentId }],
     queryFn: async () => {
@@ -10,7 +12,7 @@ export function useEmployeeKanban({ groupBy = 'status', search = '', departmentI
         ...(search ? { search } : {}),
         ...(departmentId ? { departmentId } : {}),
       });
-      return response.data; // { groupBy, groups: [...], meta }
+      return response.data;
     },
     staleTime: 30_000,
   });

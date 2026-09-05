@@ -1,10 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { attendanceApi } from '@/api/attendance.api';
+import { useAuthStore } from '@/features/auth/authStore';
 import { toast } from '@/components/ui/Toast';
 
 export function useAttendanceList(params = {}) {
+  const userId = useAuthStore((state) => state.user?.id);
+
   return useQuery({
-    queryKey: ['attendance', params],
+    queryKey: ['attendance', userId, params],
     queryFn: async () => {
       const res = await attendanceApi.list(params);
       return res; // { success: true, data: [...], meta }

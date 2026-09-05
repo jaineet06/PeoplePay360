@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Layers, Lock, Mail, ArrowRight, Info, ShieldCheck, KeyRound } from 'lucide-react';
 import { authApi } from '@/api/auth.api';
+import { clearQueryCache } from '@/lib/queryClient';
 import { useAuthStore } from './authStore';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -80,6 +81,7 @@ export function LoginPage() {
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     try {
+      clearQueryCache();
       const response = await authApi.login(data);
       const { accessToken, refreshToken, user } = response.data;
 

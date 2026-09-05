@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { StatusPill } from '@/components/ui/StatusPill';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { usePagination } from '@/hooks/usePagination';
+import { useAuthStore } from '@/features/auth/authStore';
 import { payslipsApi } from '@/api/payslips.api';
 import { PayslipDetailModal } from '@/features/payroll/components/PayslipDetailModal';
 import { toast } from '@/components/ui/Toast';
@@ -15,9 +16,11 @@ export function MyPayslipsPage() {
   const [selectedPayslip, setSelectedPayslip] = useState(null);
   const [downloadingId, setDownloadingId] = useState(null);
 
+  const userId = useAuthStore((state) => state.user?.id);
+
   // Scoped to employee via token
   const { data, isLoading } = useQuery({
-    queryKey: ['my-payslips', page, limit],
+    queryKey: ['my-payslips', userId, page, limit],
     queryFn: async () => {
       const res = await payslipsApi.list({
         page,

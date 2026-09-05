@@ -5,30 +5,23 @@ import {
   TrendingUp,
   Clock,
   Activity,
-  CheckCircle2,
-  AlertCircle,
 } from 'lucide-react';
 import { formatCurrency } from '@/utils/formatters';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { Badge } from '@/components/ui/Badge';
 
 export function KpiCards({ data, isLoading }) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        {[...Array(5)].map((_, i) => (
-          <div
-            key={i}
-            className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-3"
-          >
-            <div className="flex items-center justify-between">
+      <div className="space-y-4">
+        <Skeleton className="h-36 w-full rounded-2xl" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-3">
               <Skeleton className="h-4 w-20" />
-              <Skeleton className="h-8 w-8 rounded-lg" />
+              <Skeleton className="h-7 w-28" />
             </div>
-            <Skeleton className="h-7 w-28" />
-            <Skeleton className="h-3 w-16" />
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     );
   }
@@ -40,92 +33,94 @@ export function KpiCards({ data, isLoading }) {
   const attendanceHealth = data?.attendanceHealth || { score: 100, total: 0, breakdown: {} };
   const healthScore = isNaN(attendanceHealth.score) ? 100 : attendanceHealth.score;
 
-  const cards = [
-    {
-      title: 'Total Net Salary Paid',
-      value: formatCurrency(totalNet),
-      subtitle: 'Net compensation disbursed',
-      icon: CircleDollarSign,
-      iconBg: 'bg-emerald-50 text-emerald-600',
-      borderAccent: 'border-l-4 border-l-emerald-500',
-    },
+  const secondaryCards = [
     {
       title: 'Payslips Generated',
       value: payslipCount.toLocaleString(),
       subtitle: 'Issued pay documentation',
       icon: FileText,
       iconBg: 'bg-brand-50 text-brand-600',
-      borderAccent: 'border-l-4 border-l-brand-500',
     },
     {
       title: 'Average Net Salary',
       value: formatCurrency(avgSalary),
       subtitle: 'Per employee per pay cycle',
       icon: TrendingUp,
-      iconBg: 'bg-indigo-50 text-indigo-600',
-      borderAccent: 'border-l-4 border-l-indigo-500',
+      iconBg: 'bg-brand-100 text-brand-700',
     },
     {
       title: 'Approved Time Off',
-      value: `${approvedLeaves} days`,
-      subtitle: 'Approved leave duration',
+      value: approvedLeaves.toLocaleString(),
+      subtitle: 'Approved leave requests',
       icon: Clock,
       iconBg: 'bg-amber-50 text-amber-600',
-      borderAccent: 'border-l-4 border-l-amber-500',
     },
     {
       title: 'Attendance Health',
       value: `${healthScore}%`,
-      subtitle: `${attendanceHealth.total || 0} total attendance logs`,
+      subtitle: `${attendanceHealth.total || 0} attendance logs tracked`,
       icon: Activity,
-      iconBg: healthScore >= 80 ? 'bg-teal-50 text-teal-600' : 'bg-rose-50 text-rose-600',
-      borderAccent: healthScore >= 80 ? 'border-l-4 border-l-teal-500' : 'border-l-4 border-l-rose-500',
-      badge: (
-        <span
-          className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold ${
-            healthScore >= 80
-              ? 'bg-emerald-100 text-emerald-800'
-              : 'bg-rose-100 text-rose-800'
-          }`}
-        >
-          {healthScore >= 80 ? 'Good' : 'Needs Review'}
-        </span>
-      ),
+      iconBg: healthScore >= 80 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600',
+      badge: healthScore >= 80 ? 'Good' : 'Needs Review',
+      badgeClass:
+        healthScore >= 80
+          ? 'bg-emerald-100 text-emerald-800'
+          : 'bg-rose-100 text-rose-800',
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-      {cards.map((card, idx) => {
-        const Icon = card.icon;
-        return (
-          <div
-            key={idx}
-            className={`bg-white p-4 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between transition-all duration-150 hover:shadow-xs ${card.borderAccent}`}
-          >
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                {card.title}
-              </span>
-              <div
-                className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${card.iconBg}`}
-              >
-                <Icon className="h-4 w-4" />
-              </div>
-            </div>
-
-            <div className="mt-3">
-              <div className="text-xl font-extrabold text-slate-900 tracking-tight flex items-baseline gap-2">
-                <span>{card.value}</span>
-                {card.badge}
-              </div>
-              <p className="text-[11px] text-slate-500 mt-0.5">
-                {card.subtitle}
-              </p>
-            </div>
+    <div className="space-y-4">
+      {/* Primary KPI — largest visual weight */}
+      <div className="bg-gradient-to-br from-brand-600 to-brand-700 rounded-2xl p-6 text-white shadow-card border border-brand-700/20">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-brand-200">
+              Total Net Salary Paid
+            </p>
+            <p className="text-3xl sm:text-4xl font-extrabold tracking-tight mt-2">
+              {formatCurrency(totalNet)}
+            </p>
+            <p className="text-xs text-brand-100 mt-2">
+              Net compensation disbursed across validated and paid payslips
+            </p>
           </div>
-        );
-      })}
+          <div className="h-12 w-12 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
+            <CircleDollarSign className="h-6 w-6 text-white" />
+          </div>
+        </div>
+      </div>
+
+      {/* Secondary KPI row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {secondaryCards.map((card) => {
+          const Icon = card.icon;
+          return (
+            <div
+              key={card.title}
+              className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs hover:shadow-xs transition-shadow"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                  {card.title}
+                </span>
+                <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${card.iconBg}`}>
+                  <Icon className="h-4 w-4" />
+                </div>
+              </div>
+              <div className="mt-3 flex items-baseline gap-2">
+                <span className="text-xl font-extrabold text-slate-900 tracking-tight">{card.value}</span>
+                {card.badge && (
+                  <span className={`inline-flex px-1.5 py-0.5 rounded text-[10px] font-semibold ${card.badgeClass}`}>
+                    {card.badge}
+                  </span>
+                )}
+              </div>
+              <p className="text-[11px] text-slate-500 mt-0.5">{card.subtitle}</p>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

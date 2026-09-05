@@ -4,18 +4,22 @@ import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
 import { useDepartmentsLookup } from '@/features/employees/hooks/useLookups';
 
-const PERIOD_OPTIONS = [
-  { value: '', label: 'All Periods (Year to Date)' },
-  { value: '2026-09', label: 'September 2026 (Current)' },
-  { value: '2026-08', label: 'August 2026' },
-  { value: '2026-07', label: 'July 2026' },
-  { value: '2026-06', label: 'June 2026' },
-  { value: '2026-05', label: 'May 2026' },
-  { value: '2026-04', label: 'April 2026' },
-  { value: '2026-03', label: 'March 2026' },
-  { value: '2026-02', label: 'February 2026' },
-  { value: '2026-01', label: 'January 2026' },
-];
+const PERIOD_OPTIONS = buildPeriodOptions();
+
+function buildPeriodOptions() {
+  const options = [{ value: '', label: 'All Periods (Year to Date)' }];
+  const now = new Date();
+  for (let i = 0; i < 12; i += 1) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    const label = d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    options.push({
+      value,
+      label: i === 0 ? `${label} (Current)` : label,
+    });
+  }
+  return options;
+}
 
 export function DashboardFilters({
   period,
