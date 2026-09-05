@@ -69,18 +69,18 @@ export function OperationalAlertsPanel({ alerts = [], isLoading }) {
   const alertMap = Object.fromEntries((alerts || []).map((a) => [a.type, a.count]));
 
   return (
-    <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
-      <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+    <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs">
+      <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
         <div>
-          <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <ShieldAlert className="h-4 w-4 text-amber-500" />
             Operational &amp; Compliance Attention Items
           </h3>
-          <p className="text-[11px] text-slate-500 mt-0.5">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
             Real-time validation alerts requiring HR and payroll intervention
           </p>
         </div>
-        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+        <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-400 uppercase tracking-wider">
           Action Needed
         </span>
       </div>
@@ -98,8 +98,8 @@ export function OperationalAlertsPanel({ alerts = [], isLoading }) {
               onClick={() => navigate(config.link)}
               className={`p-3.5 rounded-lg border text-left flex flex-col justify-between transition-all duration-150 group hover:shadow-xs ${
                 hasIssues
-                  ? 'bg-slate-50/70 border-slate-200/80 hover:bg-slate-100/70 hover:border-slate-300'
-                  : 'bg-white border-slate-100 hover:bg-slate-50 opacity-80'
+                  ? 'bg-slate-50/70 dark:bg-slate-800/60 border-slate-200/80 dark:border-slate-700 hover:bg-slate-100/70 dark:hover:bg-slate-700/60'
+                  : 'bg-white dark:bg-slate-900/60 border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 opacity-80'
               }`}
             >
               <div className="flex items-start justify-between gap-2">
@@ -117,11 +117,11 @@ export function OperationalAlertsPanel({ alerts = [], isLoading }) {
               </div>
 
               <div className="mt-3">
-                <div className="text-xs font-bold text-slate-900 group-hover:text-brand-600 transition-colors flex items-center justify-between">
+                <div className="text-xs font-bold text-slate-900 dark:text-slate-100 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors flex items-center justify-between">
                   <span>{config.label}</span>
                   <ChevronRight className="h-3 w-3 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
                 </div>
-                <p className="text-[11px] text-slate-500 mt-1 leading-snug">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-snug">
                   {config.description}
                 </p>
               </div>

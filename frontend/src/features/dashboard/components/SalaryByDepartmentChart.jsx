@@ -60,18 +60,18 @@ export function SalaryByDepartmentChart({ data = [], isLoading }) {
   const hasData = validData.length > 0;
 
   return (
-    <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-2xs flex flex-col justify-between">
-      <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+    <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs flex flex-col justify-between">
+      <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
         <div>
-          <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-            <BarChart3 className="h-4 w-4 text-brand-600" />
+          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <BarChart3 className="h-4 w-4 text-brand-600 dark:text-brand-400" />
             Salary Expenditure by Department
           </h3>
-          <p className="text-[11px] text-slate-500 mt-0.5">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
             Total net compensation allocated per department
           </p>
         </div>
-        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+        <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-400 uppercase tracking-wider">
           Net INR
         </span>
       </div>

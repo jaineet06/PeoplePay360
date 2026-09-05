@@ -98,10 +98,10 @@ export function KpiCards({ data, isLoading }) {
           return (
             <div
               key={card.title}
-              className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs hover:shadow-xs transition-shadow"
+              className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs hover:shadow-xs transition-shadow"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   {card.title}
                 </span>
                 <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${card.iconBg}`}>
@@ -109,14 +109,14 @@ export function KpiCards({ data, isLoading }) {
                 </div>
               </div>
               <div className="mt-3 flex items-baseline gap-2">
-                <span className="text-xl font-extrabold text-slate-900 tracking-tight">{card.value}</span>
+                <span className="text-xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">{card.value}</span>
                 {card.badge && (
                   <span className={`inline-flex px-1.5 py-0.5 rounded text-[10px] font-semibold ${card.badgeClass}`}>
                     {card.badge}
                   </span>
                 )}
               </div>
-              <p className="text-[11px] text-slate-500 mt-0.5">{card.subtitle}</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{card.subtitle}</p>
             </div>
           );
         })}

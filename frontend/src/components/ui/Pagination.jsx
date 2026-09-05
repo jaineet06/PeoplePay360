@@ -40,25 +40,25 @@ export function Pagination({
   return (
     <div
       className={cn(
-        'flex flex-col sm:flex-row items-center justify-between gap-3 py-3 px-4 bg-white border-t border-slate-200 text-xs text-slate-600',
+        'flex flex-col sm:flex-row items-center justify-between gap-3 py-3 px-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400',
         className
       )}
     >
       {/* Records Count & Limit Select */}
       <div className="flex items-center space-x-3">
         <span>
-          Showing <span className="font-semibold text-slate-800">{startRecord}</span> to{' '}
-          <span className="font-semibold text-slate-800">{endRecord}</span> of{' '}
-          <span className="font-semibold text-slate-800">{total}</span> results
+          Showing <span className="font-semibold text-slate-800 dark:text-slate-200">{startRecord}</span> to{' '}
+          <span className="font-semibold text-slate-800 dark:text-slate-200">{endRecord}</span> of{' '}
+          <span className="font-semibold text-slate-800 dark:text-slate-200">{total}</span> results
         </span>
 
         {onLimitChange && (
-          <div className="flex items-center space-x-1 pl-3 border-l border-slate-200">
-            <span className="text-slate-400">Rows:</span>
+          <div className="flex items-center space-x-1 pl-3 border-l border-slate-200 dark:border-slate-700">
+            <span className="text-slate-400 dark:text-slate-400">Rows:</span>
             <select
               value={limit}
               onChange={(e) => onLimitChange(Number(e.target.value))}
-              className="rounded border border-slate-200 py-0.5 px-1.5 text-xs bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="rounded border border-slate-200 dark:border-slate-700 py-0.5 px-1.5 text-xs bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-brand-500"
             >
               <option value="10">10</option>
               <option value="20">20</option>
@@ -76,9 +76,9 @@ export function Pagination({
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
           className={cn(
-            'inline-flex items-center justify-center h-8 w-8 rounded border border-slate-200 text-slate-600 bg-white transition-colors',
-            'hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-brand-500',
-            'disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white'
+            'inline-flex items-center justify-center h-8 w-8 rounded border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 transition-colors',
+            'hover:bg-slate-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-1 focus:ring-brand-500',
+            'disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-slate-800'
           )}
           title="Previous page"
         >
@@ -88,7 +88,7 @@ export function Pagination({
         {getPageNumbers().map((p, idx) => {
           if (p === '...') {
             return (
-              <span key={`dots-${idx}`} className="px-1 text-slate-400">
+              <span key={`dots-${idx}`} className="px-1 text-slate-400 dark:text-slate-400">
                 ...
               </span>
             );
@@ -104,7 +104,7 @@ export function Pagination({
                 'inline-flex items-center justify-center h-8 min-w-[32px] px-2 rounded text-xs font-medium transition-colors',
                 isActive
                   ? 'bg-brand-600 text-white border border-brand-600'
-                  : 'border border-slate-200 text-slate-700 bg-white hover:bg-slate-50'
+                  : 'border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700'
               )}
             >
               {p}
@@ -117,9 +117,9 @@ export function Pagination({
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages}
           className={cn(
-            'inline-flex items-center justify-center h-8 w-8 rounded border border-slate-200 text-slate-600 bg-white transition-colors',
-            'hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-brand-500',
-            'disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white'
+            'inline-flex items-center justify-center h-8 w-8 rounded border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 transition-colors',
+            'hover:bg-slate-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-1 focus:ring-brand-500',
+            'disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-slate-800'
           )}
           title="Next page"
         >

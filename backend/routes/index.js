@@ -12,6 +12,7 @@ import salaryRoutes from './salary.routes.js';
 import payrunRoutes from './payrun.routes.js';
 import payslipRoutes from './payslip.routes.js';
 import dashboardRoutes from './dashboard.routes.js';
+import notificationRoutes from './notification.routes.js';
 
 const router = express.Router();
 
@@ -28,6 +29,7 @@ router.use('/salary-structures', salaryRoutes);
 router.use('/payruns', payrunRoutes);
 router.use('/payslips', payslipRoutes);
 router.use('/dashboard', dashboardRoutes);
+router.use('/notifications', notificationRoutes);
 
 router.get('/health', (req, res) => {
   res.json({ success: true, data: { status: 'ok' } });

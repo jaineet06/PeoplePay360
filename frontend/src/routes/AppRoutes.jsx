@@ -42,6 +42,9 @@ const MyAttendancePage = lazy(() => import('@/features/selfService/MyAttendanceP
 const MyTimeOffPage = lazy(() => import('@/features/selfService/MyTimeOffPage'));
 const MyPayslipsPage = lazy(() => import('@/features/selfService/MyPayslipsPage'));
 
+// Notifications
+const NotificationsPage = lazy(() => import('@/pages/NotificationsPage'));
+
 // 404 Not Found Page
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 
@@ -77,6 +80,7 @@ export function AppRoutes() {
             <Route path="/my-attendance" element={<MyAttendancePage />} />
             <Route path="/my-time-off" element={<MyTimeOffPage />} />
             <Route path="/my-payslips" element={<MyPayslipsPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
 
             {/* HR / Admin Operations Directory Routes */}
             <Route element={<ProtectedRoute allowedRoles={HR_ROLES} />}>

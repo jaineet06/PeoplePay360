@@ -130,6 +130,18 @@ enum WageType {
   HOURLY
 }
 
+enum NotificationType {
+  TIME_OFF_REQUEST
+  TIME_OFF_APPROVED
+  TIME_OFF_REFUSED
+  PAYRUN_COMPUTED
+  PAYRUN_VALIDATED
+  PAYRUN_PAID
+  PAYSLIP_READY
+  CONTRACT_EXPIRING
+  GENERAL
+}
+
 // ---------------------------------------------------------------------------
 // Identity
 // ---------------------------------------------------------------------------
@@ -150,6 +162,7 @@ model User {
   createdPayruns          Payrun[]         @relation("PayrunCreatedBy")
   correctedAttendances    Attendance[]     @relation("AttendanceCorrectedBy")
   approvedTimeOffRequests TimeOffRequest[] @relation("TimeOffApprovedBy")
+  notifications           Notification[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -646,4 +659,25 @@ model PayslipLine {
   @@unique([payslipId, code])
   @@index([payslipId])
   @@map("payslip_lines")
+}
+
+// ---------------------------------------------------------------------------
+// Notifications
+// ---------------------------------------------------------------------------
+
+model Notification {
+  id        String           @id @default(uuid()) @db.Uuid
+  userId    String           @map("user_id") @db.Uuid
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  message   String
+  link      String?
+  isRead    Boolean          @default(false) @map("is_read")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([userId, isRead])
+  @@index([createdAt])
+  @@map("notifications")
 }

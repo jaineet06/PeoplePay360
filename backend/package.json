@@ -11,6 +11,8 @@
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:seed": "node prisma/seed.js",
+    "db:seed:large": "node scripts/seed-large.js",
+    "db:seed:all": "node prisma/seed.js && node scripts/seed-large.js",
     "db:studio": "prisma studio"
   },
   "engines": {

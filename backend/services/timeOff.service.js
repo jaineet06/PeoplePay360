@@ -5,6 +5,11 @@ import { assertEmployeeScope, resolveEmployeeId } from '../utils/scope.js';
 import { ROLES } from '../utils/roles.js';
 import { nextTimeOffRequestRef } from '../utils/reference.js';
 import { serializeModel } from '../utils/serialize.js';
+import {
+  createNotification,
+  notifyUsersWithRoles,
+  getUserIdByEmployeeId,
+} from './notification.service.js';
 
 const employeeSelect = { id: true, employeeCode: true, fullName: true, departmentId: true };
 const typeSelect = { id: true, code: true, name: true, unit: true, requiresAllocation: true, approvalRequired: true };
@@ -545,6 +550,15 @@ export async function createRequest(data, requester) {
     },
   });
 
+  // Notify HR_MANAGER+ about the new pending request
+  notifyUsersWithRoles(
+    [ROLES.HR_MANAGER, ROLES.ADMIN],
+    'TIME_OFF_REQUEST',
+    'New Time Off Request',
+    `${request.employee?.fullName ?? 'An employee'} submitted a ${request.timeOffType?.name ?? 'leave'} request (${request.reference}).`,
+    '/time-off'
+  );
+
   return mapRequest(request);
 }
 
@@ -638,6 +652,18 @@ export async function approveRequest(id, requester) {
       },
     });
 
+    // Notify the employee
+    const empUserId = await getUserIdByEmployeeId(request.employeeId);
+    if (empUserId) {
+      createNotification(
+        empUserId,
+        'TIME_OFF_APPROVED',
+        'Time Off Approved',
+        `Your ${request.timeOffType?.name ?? 'leave'} request (${request.reference}) has been approved.`,
+        '/my-time-off'
+      );
+    }
+
     return mapRequest(request);
   });
 }
@@ -666,6 +692,18 @@ export async function refuseRequest(id, data, requester) {
       approvedBy: { select: approverSelect },
     },
   });
+
+  // Notify the employee
+  const empUserId = await getUserIdByEmployeeId(request.employeeId);
+  if (empUserId) {
+    createNotification(
+      empUserId,
+      'TIME_OFF_REFUSED',
+      'Time Off Refused',
+      `Your ${request.timeOffType?.name ?? 'leave'} request (${request.reference}) was not approved.`,
+      '/my-time-off'
+    );
+  }
 
   return mapRequest(request);
 }

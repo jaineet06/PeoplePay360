@@ -4,7 +4,7 @@ import { cn } from '@/utils/cn';
 export function Skeleton({ className, ...props }) {
   return (
     <div
-      className={cn('animate-pulse rounded bg-slate-200/80', className)}
+      className={cn('animate-pulse rounded bg-slate-200/80 dark:bg-slate-700/60', className)}
       {...props}
     />
   );
@@ -14,7 +14,7 @@ export function TableRowSkeleton({ columns = 5, rows = 5 }) {
   return (
     <>
       {Array.from({ length: rows }).map((_, rIdx) => (
-        <tr key={rIdx} className="border-b border-slate-100">
+        <tr key={rIdx} className="border-b border-slate-100 dark:border-slate-800">
           {Array.from({ length: columns }).map((_, cIdx) => (
             <td key={cIdx} className="py-3 px-4">
               <Skeleton
@@ -37,7 +37,7 @@ export function CardSkeleton({ count = 3 }) {
       {Array.from({ length: count }).map((_, idx) => (
         <div
           key={idx}
-          className="rounded-xl border border-slate-200 bg-white p-5 shadow-card"
+          className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-card"
         >
           <div className="flex items-center space-x-3 mb-4">
             <Skeleton className="h-10 w-10 rounded-full" />
@@ -46,7 +46,7 @@ export function CardSkeleton({ count = 3 }) {
               <Skeleton className="h-3 w-16" />
             </div>
           </div>
-          <div className="space-y-2 pt-2 border-t border-slate-100">
+          <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
             <Skeleton className="h-3 w-full" />
             <Skeleton className="h-3 w-3/4" />
           </div>
@@ -59,7 +59,7 @@ export function CardSkeleton({ count = 3 }) {
 export function ProfileSkeleton() {
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center space-x-4">
           <Skeleton className="h-16 w-16 rounded-full" />
           <div className="space-y-2">
@@ -76,7 +76,7 @@ export function ProfileSkeleton() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-card space-y-4">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-card space-y-4">
         <Skeleton className="h-5 w-36" />
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
           <Skeleton className="h-12 w-full rounded-md" />
@@ -99,8 +99,27 @@ export function PageSkeleton() {
         <Skeleton className="h-9 w-32 rounded-md" />
       </div>
 
-      <div className="h-12 w-full bg-slate-200/60 rounded-lg" />
-      <div className="h-96 w-full bg-slate-200/50 rounded-xl" />
+      <div className="h-12 w-full bg-slate-200/60 dark:bg-slate-700/40 rounded-lg" />
+      <div className="h-96 w-full bg-slate-200/50 dark:bg-slate-700/30 rounded-xl" />
+    </div>
+  );
+}
+
+/** Skeleton for the notification dropdown list rows */
+export function NotifSkeleton({ rows = 4 }) {
+  return (
+    <div className="divide-y divide-slate-100 dark:divide-slate-800">
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="flex items-start gap-3 px-4 py-3">
+          <Skeleton className="h-1.5 w-1.5 rounded-full mt-2 shrink-0" />
+          <Skeleton className="h-4 w-4 rounded-full mt-0.5 shrink-0" />
+          <div className="flex-1 space-y-1.5">
+            <Skeleton className="h-3 w-3/4" />
+            <Skeleton className="h-3 w-full" />
+            <Skeleton className="h-2.5 w-16" />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

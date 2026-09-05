@@ -8,6 +8,11 @@ import { renderPayslipPdf } from '../utils/payslipPdf.js';
 import nodemailer from 'nodemailer';
 import env from '../configs/env.js';
 import { Prisma } from '@prisma/client';
+import {
+  createNotification,
+  notifyUsersWithRoles,
+  getUserIdByEmployeeId,
+} from './notification.service.js';
 
 const WORKED_STATUSES = ['PRESENT', 'LATE', 'EARLY_LEAVE', 'HALF_DAY', 'OVERTIME'];
 
@@ -407,11 +412,22 @@ export async function compute(id) {
     });
   });
 
-  return {
+  const result = {
     payrun: await getById(id),
     computedCount,
     warnings,
   };
+
+  // Notify payroll roles that the payrun has been computed
+  notifyUsersWithRoles(
+    ['HR_PAYROLL_MANAGER', 'HR_PAYROLL_USER', 'ADMIN'],
+    'PAYRUN_COMPUTED',
+    'Payrun Computed',
+    `Payrun ${result.payrun.reference} (${result.payrun.periodLabel}) has been computed. ${computedCount} payslip(s) ready for review.`,
+    '/payroll'
+  );
+
+  return result;
 }
 
 export async function validate(id) {
@@ -436,7 +452,18 @@ export async function validate(id) {
     });
   });
 
-  return getById(id);
+  const validated = await getById(id);
+
+  // Notify payroll managers that payrun is validated and ready to pay
+  notifyUsersWithRoles(
+    ['HR_PAYROLL_MANAGER', 'ADMIN'],
+    'PAYRUN_VALIDATED',
+    'Payrun Validated',
+    `Payrun ${validated.reference} (${validated.periodLabel}) has been validated and is ready for payment.`,
+    '/payroll'
+  );
+
+  return validated;
 }
 
 export async function markPaid(id, paymentDate) {
@@ -458,7 +485,36 @@ export async function markPaid(id, paymentDate) {
     });
   });
 
-  return getById(id);
+  const paidPayrun = await getById(id);
+
+  // Notify payroll roles of payment
+  notifyUsersWithRoles(
+    ['HR_PAYROLL_MANAGER', 'HR_PAYROLL_USER', 'ADMIN'],
+    'PAYRUN_PAID',
+    'Payrun Marked as Paid',
+    `Payrun ${paidPayrun.reference} (${paidPayrun.periodLabel}) has been marked as paid.`,
+    '/payroll'
+  );
+
+  // Notify each employee individually that their payslip is ready
+  const paidPayslips = await prisma.payslip.findMany({
+    where: { payrunId: id, status: 'PAID' },
+    select: { id: true, employeeId: true, reference: true, periodLabel: true },
+  });
+  for (const payslip of paidPayslips) {
+    const empUserId = await getUserIdByEmployeeId(payslip.employeeId);
+    if (empUserId) {
+      createNotification(
+        empUserId,
+        'PAYSLIP_READY',
+        'Your Payslip is Ready',
+        `Your payslip for ${payslip.periodLabel} (${payslip.reference}) is now available.`,
+        '/my-payslips'
+      );
+    }
+  }
+
+  return paidPayrun;
 }
 
 function getMailTransporter() {

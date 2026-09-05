@@ -7,7 +7,7 @@ export function AppShell() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-slate-50">
+    <div className="flex h-screen w-full overflow-hidden bg-slate-50 dark:bg-slate-950">
       {/* Sidebar */}
       <Sidebar
         isOpen={mobileSidebarOpen}
