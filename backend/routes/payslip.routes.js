@@ -12,6 +12,12 @@ const router = express.Router();
 router.use(authenticate);
 
 router.get(
+  '/',
+  authorize(ROLES.EMPLOYEE, ...AUTH.PAYROLL_READ),
+  asyncHandler(payslipController.list),
+);
+
+router.get(
   '/:id',
   authorize(ROLES.EMPLOYEE, ...AUTH.PAYROLL_READ),
   validate({ params: payslipIdParams }),

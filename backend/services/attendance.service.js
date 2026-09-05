@@ -58,18 +58,27 @@ function getScheduleStartMinute(scheduleLines) {
   return Math.min(...scheduleLines.map((line) => line.startMinute));
 }
 
-export function classifyStatus({ checkIn, checkOut, scheduleLines, statusOverride }) {
+export function classifyStatus({ checkIn, checkOut, scheduleLines, statusOverride, isToday = false }) {
   if (statusOverride) return statusOverride;
   if (!checkIn && !checkOut) return 'ABSENT';
-  if (checkIn && !checkOut) return 'MISSING_CHECKOUT';
+
+  const checkInMinute = checkIn ? getMinutesFromMidnight(checkIn) : null;
+  const startMinute = getScheduleStartMinute(scheduleLines);
+  const isLate = startMinute != null && checkInMinute != null && checkInMinute > startMinute + LATE_GRACE_MINUTES;
+
+  if (checkIn && !checkOut) {
+    // If it's today (shift in progress), status is active PRESENT or LATE, not missing checkout
+    if (isToday) {
+      return isLate ? 'LATE' : 'PRESENT';
+    }
+    return 'MISSING_CHECKOUT';
+  }
 
   const workedHours = Number(computeWorkedHours(checkIn, checkOut));
   const expectedHours = getExpectedHoursForDay(scheduleLines);
-  const checkInMinute = getMinutesFromMidnight(checkIn);
-  const startMinute = getScheduleStartMinute(scheduleLines);
 
   if (expectedHours > 0 && workedHours > expectedHours) return 'OVERTIME';
-  if (startMinute != null && checkInMinute > startMinute + LATE_GRACE_MINUTES) return 'LATE';
+  if (isLate) return 'LATE';
   return 'PRESENT';
 }
 
@@ -92,9 +101,10 @@ async function getScheduleLinesForDate(employeeId, date) {
 
 async function deriveAttendanceFields(employeeId, date, checkIn, checkOut, statusOverride) {
   const scheduleLines = await getScheduleLinesForDate(employeeId, date);
+  const isToday = toDateOnly(new Date()).getTime() === date.getTime();
   return {
     workedHours: computeWorkedHours(checkIn, checkOut),
-    status: classifyStatus({ checkIn, checkOut, scheduleLines, statusOverride }),
+    status: classifyStatus({ checkIn, checkOut, scheduleLines, statusOverride, isToday }),
   };
 }
 
@@ -321,6 +331,7 @@ export async function checkOut(requester, data) {
       checkOut: now,
       workedHours: derived.workedHours,
       status: derived.status,
+      source: data.source ?? existing.source,
       notes: data.notes ?? existing.notes,
     },
     include: attendanceInclude,

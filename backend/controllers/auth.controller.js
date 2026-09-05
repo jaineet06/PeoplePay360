@@ -18,14 +18,19 @@ export async function register(req, res) {
 export async function login(req, res) {
   const { accessToken, refreshToken, user } = await authService.loginUser(req.body.email, req.body.password);
   setRefreshCookie(res, refreshToken);
-  return ApiResponse.success(res, { accessToken, expiresIn: 900, user });
+  return ApiResponse.success(res, { accessToken, refreshToken, expiresIn: 900, user });
 }
 
 export async function refresh(req, res) {
   const token = req.cookies?.[REFRESH_COOKIE_NAME] || req.body.refreshToken;
   const session = await authService.refreshSession(token);
   setRefreshCookie(res, session.refreshToken);
-  return ApiResponse.success(res, { accessToken: session.accessToken, expiresIn: 900, user: session.user });
+  return ApiResponse.success(res, {
+    accessToken: session.accessToken,
+    refreshToken: session.refreshToken,
+    expiresIn: 900,
+    user: session.user,
+  });
 }
 
 export async function logout(req, res) {

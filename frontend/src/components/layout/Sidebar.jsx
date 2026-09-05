@@ -30,31 +30,31 @@ export function Sidebar({ isOpen, onClose }) {
       label: 'Departments',
       path: '/departments',
       icon: Building2,
-      badge: 'Stub',
+      badge: null,
     },
     {
       label: 'Contracts',
       path: '/contracts',
       icon: FileSpreadsheet,
-      badge: 'Stub',
+      badge: null,
     },
     {
       label: 'Attendance',
       path: '/attendance',
       icon: CalendarCheck2,
-      badge: 'Stub',
+      badge: null,
     },
     {
       label: 'Time Off',
       path: '/time-off',
       icon: Clock,
-      badge: 'Stub',
+      badge: null,
     },
     {
       label: 'Payroll',
       path: '/payroll',
       icon: CircleDollarSign,
-      badge: 'Stub',
+      badge: null,
     },
   ];
 
@@ -67,21 +67,21 @@ export function Sidebar({ isOpen, onClose }) {
     },
     {
       label: 'My Attendance',
-      path: '/attendance',
+      path: '/my-attendance',
       icon: CalendarCheck2,
-      badge: 'Stub',
+      badge: null,
     },
     {
       label: 'My Time Off',
-      path: '/time-off',
+      path: '/my-time-off',
       icon: Clock,
-      badge: 'Stub',
+      badge: null,
     },
     {
       label: 'My Payslips',
-      path: '/payroll',
+      path: '/my-payslips',
       icon: CircleDollarSign,
-      badge: 'Stub',
+      badge: null,
     },
   ];
 
@@ -168,15 +168,15 @@ export function Sidebar({ isOpen, onClose }) {
           })}
         </div>
 
-        {/* System info / Phase banner */}
+        {/* System info banner */}
         <div className="p-4 border-t border-slate-800 bg-slate-950/40">
           <div className="rounded-lg bg-slate-850/80 p-3 border border-slate-800 text-xs">
-            <div className="flex items-center space-x-1.5 text-brand-400 font-semibold mb-1">
+            <div className="flex items-center space-x-1.5 text-emerald-400 font-semibold mb-1">
               <Sparkles className="h-3.5 w-3.5" />
-              <span>Phase 1 Frontend</span>
+              <span>Full System Active</span>
             </div>
             <p className="text-[11px] text-slate-400 leading-relaxed">
-              Auth &amp; Employee modules active. Contracts &amp; Payroll modules coming in next pass.
+              HR Operations, Payroll Engine, Attendance, Time Off, &amp; Self-Service are operational.
             </p>
           </div>
         </div>

@@ -33,12 +33,13 @@ export function App() {
     async function initSession() {
       try {
         const response = await authApi.refresh();
-        const { user, accessToken } = response.data;
+        const { user, accessToken, refreshToken } = response.data;
         if (isMounted) {
-          setAuth(user, accessToken);
+          setAuth(user, accessToken, refreshToken);
         }
-      } catch {
-        if (isMounted) {
+      } catch (err) {
+        // Only clear auth if the server returned an explicit 401 (revoked/expired)
+        if (isMounted && err?.response?.status === 401) {
           clearAuth();
         }
       } finally {

@@ -42,9 +42,9 @@ export function LoginPage() {
     setIsSubmitting(true);
     try {
       const response = await authApi.login(data);
-      const { accessToken, user } = response.data;
+      const { accessToken, refreshToken, user } = response.data;
 
-      setAuth(user, accessToken);
+      setAuth(user, accessToken, refreshToken);
       toast.success(`Welcome back, ${user.employee?.fullName || user.email}!`);
 
       // Determine redirect destination based on role and location state

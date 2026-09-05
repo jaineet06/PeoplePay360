@@ -5,11 +5,17 @@ import env from '../configs/env.js';
 export const REFRESH_COOKIE_NAME = 'refreshToken';
 
 export function signAccessToken(payload) {
-  return jwt.sign(payload, env.JWT_ACCESS_SECRET, { expiresIn: env.JWT_ACCESS_EXPIRES_IN });
+  return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
+    expiresIn: env.JWT_ACCESS_EXPIRES_IN,
+    jwtid: crypto.randomUUID(),
+  });
 }
 
 export function signRefreshToken(payload) {
-  return jwt.sign(payload, env.JWT_REFRESH_SECRET, { expiresIn: env.JWT_REFRESH_EXPIRES_IN });
+  return jwt.sign(payload, env.JWT_REFRESH_SECRET, {
+    expiresIn: env.JWT_REFRESH_EXPIRES_IN,
+    jwtid: crypto.randomUUID(),
+  });
 }
 
 export function verifyAccessToken(token) {

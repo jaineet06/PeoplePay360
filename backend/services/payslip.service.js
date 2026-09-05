@@ -57,3 +57,34 @@ export async function generatePdf(id, requester) {
   const buffer = await renderPayslipPdf(payslip);
   return { payslip, buffer };
 }
+
+export async function list(query, requester) {
+  const where = {};
+  const scopedEmployeeId = assertEmployeeScope(requester, query.employeeId);
+  if (scopedEmployeeId) where.employeeId = scopedEmployeeId;
+  if (query.payrunId) where.payrunId = query.payrunId;
+  if (query.status) where.status = query.status;
+  if (query.periodLabel) where.periodLabel = query.periodLabel;
+
+  const [total, rows] = await Promise.all([
+    prisma.payslip.count({ where }),
+    prisma.payslip.findMany({
+      where,
+      orderBy: { [query.sortBy || 'createdAt']: query.order || 'desc' },
+      skip: query.skip,
+      take: query.limit,
+      include: payslipInclude,
+    }),
+  ]);
+
+  return {
+    payslips: rows,
+    meta: {
+      page: query.page,
+      limit: query.limit,
+      total,
+      totalPages: Math.ceil(total / query.limit) || 1,
+    },
+  };
+}
+

@@ -72,10 +72,19 @@ export async function refreshSession(refreshToken) {
     where: { tokenHash: hashToken(refreshToken) },
     include: { user: { select: userSelect } },
   });
-  if (!stored || stored.revokedAt || stored.expiresAt < new Date() || !stored.user.isActive) {
+  if (!stored || stored.revokedAt || stored.expiresAt < new Date() || !stored.user?.isActive) {
     throw ApiError.unauthorized('Refresh token has been revoked or expired.');
   }
-  await prisma.refreshToken.update({ where: { id: stored.id }, data: { revokedAt: new Date() } });
+
+  // Atomic update ensures that only one concurrent request can rotate this refresh token
+  const updated = await prisma.refreshToken.updateMany({
+    where: { id: stored.id, revokedAt: null },
+    data: { revokedAt: new Date() },
+  });
+  if (updated.count === 0) {
+    throw ApiError.unauthorized('Refresh token has already been rotated.');
+  }
+
   const tokens = buildAuthTokens(stored.user);
   await persistRefreshToken(stored.user.id, tokens.refreshToken);
   return { ...tokens, user: sanitizeUser(stored.user) };

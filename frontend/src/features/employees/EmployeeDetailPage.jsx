@@ -28,6 +28,10 @@ import {
   useEmployeeTimeOff,
   useEmployeeAllocations,
 } from './hooks/useEmployeeRelations';
+import { ContractsTable } from '@/features/contracts/components/ContractsTable';
+import { AttendanceTable } from '@/features/attendance/components/AttendanceTable';
+import { TimeOffAllocationsTable } from '@/features/timeOff/components/TimeOffAllocationsTable';
+import { TimeOffRequestsTable } from '@/features/timeOff/components/TimeOffRequestsTable';
 import { Button } from '@/components/ui/Button';
 import { StatusPill } from '@/components/ui/StatusPill';
 import { Badge } from '@/components/ui/Badge';
@@ -398,240 +402,78 @@ export function EmployeeDetailPage() {
         </div>
       )}
 
-      {/* Tab 2: Contracts (Unified Hub Navigation) */}
+      {/* Tab 2: Contracts */}
       {activeTab === 'contracts' && (
-        <Card>
-          <CardHeader
-            action={
-              <Link
-                to={`/contracts?employeeId=${employee.id}`}
-                className="text-xs font-semibold text-brand-600 hover:text-brand-700 flex items-center"
-              >
-                View Full Contracts Screen &rarr;
-              </Link>
-            }
-          >
-            <div className="flex items-center space-x-2">
-              <FileSpreadsheet className="h-4 w-4 text-brand-600" />
-              <CardTitle>Contract Records ({contractsCount})</CardTitle>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-semibold text-slate-900">Contract Records</h3>
+              <p className="text-xs text-slate-500">
+                Legal agreements, wage history, and assigned salary structures.
+              </p>
             </div>
-            <CardDescription>
-              Legal agreements, wage history, and salary structures. Full module coming in Phase 2.
-            </CardDescription>
-          </CardHeader>
-          <CardBody>
-            <div className="space-y-3">
-              {contractsData?.data && contractsData.data.length > 0 ? (
-                <div className="divide-y divide-slate-100">
-                  {contractsData.data.map((c) => (
-                    <div
-                      key={c.id}
-                      className="py-3 flex items-center justify-between text-xs"
-                    >
-                      <div className="space-y-1">
-                        <div className="font-semibold text-slate-900">
-                          {c.reference || 'Contract'} — {c.salaryStructure?.name || 'Salary Structure'}
-                        </div>
-                        <div className="text-slate-500">
-                          Period: {formatDate(c.startDate)} to {c.endDate ? formatDate(c.endDate) : 'Open'}
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <span className="font-semibold text-slate-900">
-                          {formatCurrency(c.wage, c.currency)}
-                        </span>
-                        <StatusPill status={c.status} size="xs" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="py-8 text-center text-xs text-slate-500">
-                  No contracts recorded for this employee.
-                </div>
-              )}
-
-              <div className="pt-4 border-t border-slate-100 flex justify-end">
-                <Link
-                  to={`/contracts?employeeId=${employee.id}`}
-                  className="inline-flex items-center text-xs font-semibold text-brand-600 hover:text-brand-700"
-                >
-                  Manage all contracts in Contracts Module &rarr;
-                </Link>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
+            <Link
+              to={`/contracts?employeeId=${employee.id}`}
+              className="text-xs font-semibold text-brand-600 hover:text-brand-700 flex items-center"
+            >
+              Open in Contracts Module <ExternalLink className="h-3 w-3 ml-1" />
+            </Link>
+          </div>
+          <ContractsTable employeeId={employee.id} hideEmployeeColumn={true} />
+        </div>
       )}
 
-      {/* Tab 3: Attendance (Unified Hub Navigation) */}
+      {/* Tab 3: Attendance */}
       {activeTab === 'attendance' && (
-        <Card>
-          <CardHeader
-            action={
-              <Link
-                to={`/attendance?employeeId=${employee.id}`}
-                className="text-xs font-semibold text-brand-600 hover:text-brand-700 flex items-center"
-              >
-                View Full Attendance Screen &rarr;
-              </Link>
-            }
-          >
-            <div className="flex items-center space-x-2">
-              <CalendarCheck2 className="h-4 w-4 text-brand-600" />
-              <CardTitle>Recent Attendance Entries ({attendanceCount})</CardTitle>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-semibold text-slate-900">Attendance History</h3>
+              <p className="text-xs text-slate-500">
+                Daily check-in/out timestamps, hours computed, and manager corrections.
+              </p>
             </div>
-            <CardDescription>
-              Daily check-ins, check-outs, and hours worked. Full module coming in Phase 3.
-            </CardDescription>
-          </CardHeader>
-          <CardBody>
-            <div className="space-y-3">
-              {attendanceData?.data && attendanceData.data.length > 0 ? (
-                <div className="divide-y divide-slate-100">
-                  {attendanceData.data.map((att) => (
-                    <div
-                      key={att.id}
-                      className="py-2.5 flex items-center justify-between text-xs"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <span className="font-semibold text-slate-800">
-                          {formatDate(att.date)}
-                        </span>
-                        <span className="text-slate-500">
-                          In: {att.checkIn ? new Date(att.checkIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}
-                          {' | '}
-                          Out: {att.checkOut ? new Date(att.checkOut).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}
-                        </span>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <span className="text-slate-600 font-medium">
-                          {att.workedHours ? `${Number(att.workedHours).toFixed(1)} hrs` : '—'}
-                        </span>
-                        <StatusPill status={att.status} size="xs" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="py-8 text-center text-xs text-slate-500">
-                  No attendance logs recorded for this employee.
-                </div>
-              )}
-
-              <div className="pt-4 border-t border-slate-100 flex justify-end">
-                <Link
-                  to={`/attendance?employeeId=${employee.id}`}
-                  className="inline-flex items-center text-xs font-semibold text-brand-600 hover:text-brand-700"
-                >
-                  View full attendance calendar &rarr;
-                </Link>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
+            <Link
+              to={`/attendance?employeeId=${employee.id}`}
+              className="text-xs font-semibold text-brand-600 hover:text-brand-700 flex items-center"
+            >
+              Open in Attendance Module <ExternalLink className="h-3 w-3 ml-1" />
+            </Link>
+          </div>
+          <AttendanceTable employeeId={employee.id} hideEmployeeColumn={true} />
+        </div>
       )}
 
       {/* Tab 4: Time Off & Allocations */}
       {activeTab === 'time-off' && (
-        <div className="space-y-6">
-          {/* Allocation Balances */}
-          <Card>
-            <CardHeader
-              action={
-                <Link
-                  to={`/time-off?employeeId=${employee.id}`}
-                  className="text-xs font-semibold text-brand-600 hover:text-brand-700 flex items-center"
-                >
-                  Manage Time Off &rarr;
-                </Link>
-              }
-            >
-              <div className="flex items-center space-x-2">
-                <PieChart className="h-4 w-4 text-brand-600" />
-                <CardTitle>Leave Balances ({allocationsCount})</CardTitle>
+        <div className="space-y-8">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-semibold text-slate-900">Leave Allocations</h3>
+                <p className="text-xs text-slate-500">
+                  Assigned quotas and balance deductions for this employee.
+                </p>
               </div>
-              <CardDescription>
-                Allocated, taken, and remaining leave quotas computed by engine.
-              </CardDescription>
-            </CardHeader>
-            <CardBody>
-              {allocationsData?.data && allocationsData.data.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {allocationsData.data.map((alloc) => (
-                    <div
-                      key={alloc.id}
-                      className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-2"
-                    >
-                      <div className="flex items-center justify-between font-semibold text-slate-800">
-                        <span>{alloc.timeOffType?.name || 'Leave'}</span>
-                        <span className="text-[10px] text-slate-400 font-mono">
-                          {alloc.timeOffType?.unit}
-                        </span>
-                      </div>
-                      <div className="flex items-baseline justify-between pt-1">
-                        <div>
-                          <div className="text-xl font-bold text-slate-900">
-                            {alloc.remainingUnits !== undefined
-                              ? Number(alloc.remainingUnits).toFixed(1)
-                              : '—'}
-                          </div>
-                          <div className="text-[10px] text-slate-500">Remaining Balance</div>
-                        </div>
-                        <div className="text-right text-[11px] text-slate-500">
-                          <div>Allocated: {Number(alloc.allocatedUnits).toFixed(1)}</div>
-                          <div>Taken: {Number(alloc.takenUnits).toFixed(1)}</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="py-6 text-center text-xs text-slate-500">
-                  No leave allocations active for this employee.
-                </div>
-              )}
-            </CardBody>
-          </Card>
+              <Link
+                to={`/time-off?employeeId=${employee.id}`}
+                className="text-xs font-semibold text-brand-600 hover:text-brand-700 flex items-center"
+              >
+                Open in Time Off Module <ExternalLink className="h-3 w-3 ml-1" />
+              </Link>
+            </div>
+            <TimeOffAllocationsTable employeeId={employee.id} hideEmployeeColumn={true} />
+          </div>
 
-          {/* Recent Requests */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Leave Requests ({timeOffCount})</CardTitle>
-              <CardDescription>Past and upcoming leave requests</CardDescription>
-            </CardHeader>
-            <CardBody>
-              {timeOffData?.data && timeOffData.data.length > 0 ? (
-                <div className="divide-y divide-slate-100 text-xs">
-                  {timeOffData.data.map((req) => (
-                    <div
-                      key={req.id}
-                      className="py-2.5 flex items-center justify-between"
-                    >
-                      <div>
-                        <span className="font-semibold text-slate-800">
-                          {req.timeOffType?.name}
-                        </span>
-                        <span className="text-slate-500 ml-2">
-                          ({formatDate(req.startDate)} to {formatDate(req.endDate)})
-                        </span>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <span className="font-medium text-slate-600">
-                          {req.duration} {req.timeOffType?.unit?.toLowerCase()}
-                        </span>
-                        <StatusPill status={req.status} size="xs" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="py-6 text-center text-xs text-slate-500">
-                  No leave requests submitted yet.
-                </div>
-              )}
-            </CardBody>
-          </Card>
+          <div className="space-y-4 pt-4 border-t border-slate-200">
+            <div>
+              <h3 className="text-base font-semibold text-slate-900">Time Off Requests</h3>
+              <p className="text-xs text-slate-500">
+                Past and pending leave requests, approvals, and cancellations.
+              </p>
+            </div>
+            <TimeOffRequestsTable employeeId={employee.id} hideEmployeeColumn={true} />
+          </div>
         </div>
       )}
 

@@ -44,6 +44,7 @@ export const checkInBody = z.object({
 
 export const checkOutBody = z.object({
   notes: z.string().trim().max(500).nullable().optional(),
+  source: z.enum(['WEB', 'MOBILE', 'BIOMETRIC']).optional(),
 }).strict();
 
 export { idParams };

@@ -44,3 +44,26 @@ export function useManagersLookup() {
     staleTime: 60_000,
   });
 }
+
+export function useSalaryStructuresLookup() {
+  return useQuery({
+    queryKey: ['lookup-salary-structures'],
+    queryFn: async () => {
+      const res = await lookupsApi.getSalaryStructures();
+      return res.data || [];
+    },
+    staleTime: 60_000,
+  });
+}
+
+export function useTimeOffTypesLookup() {
+  return useQuery({
+    queryKey: ['lookup-time-off-types'],
+    queryFn: async () => {
+      const res = await lookupsApi.getTimeOffTypes();
+      return res.data || [];
+    },
+    staleTime: 60_000,
+  });
+}
+

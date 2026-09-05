@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useAuthStore, getAccessToken } from '@/features/auth/authStore';
+import { useAuthStore, getAccessToken, getStoredRefreshToken } from '@/features/auth/authStore';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
@@ -65,15 +65,16 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Attempt silent refresh via cookie
+        const storedRefreshToken = getStoredRefreshToken();
+        // Attempt silent refresh via cookie or stored token payload
         const response = await axios.post(
           `${BASE_URL}/auth/refresh`,
-          {},
+          storedRefreshToken ? { refreshToken: storedRefreshToken } : {},
           { withCredentials: true }
         );
 
-        const { accessToken, user } = response.data.data;
-        useAuthStore.getState().setAuth(user, accessToken);
+        const { accessToken, refreshToken, user } = response.data.data;
+        useAuthStore.getState().setAuth(user, accessToken, refreshToken);
 
         processQueue(null, accessToken);
 

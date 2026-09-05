@@ -7,15 +7,38 @@ import { useAuthStore } from '@/features/auth/authStore';
 
 // Lazy-loaded routes for code-splitting
 const LoginPage = lazy(() => import('@/features/auth/LoginPage'));
+
+// Employees
 const EmployeeListPage = lazy(() => import('@/features/employees/EmployeeListPage'));
 const EmployeeKanbanPage = lazy(() => import('@/features/employees/EmployeeKanbanPage'));
 const EmployeeFormPage = lazy(() => import('@/features/employees/EmployeeFormPage'));
 const EmployeeDetailPage = lazy(() => import('@/features/employees/EmployeeDetailPage'));
 const SelfServiceProfilePage = lazy(() => import('@/features/employees/SelfServiceProfilePage'));
-const PlaceholderModulePage = lazy(() => import('@/components/common/PlaceholderModulePage'));
 
-// HR roles allowed to manage employees
+// Departments & Positions
+const DepartmentsPage = lazy(() => import('@/features/departments/DepartmentsPage'));
+
+// Contracts
+const ContractsPage = lazy(() => import('@/features/contracts/ContractsPage'));
+
+// Attendance (Admin/HR)
+const AttendancePage = lazy(() => import('@/features/attendance/AttendancePage'));
+
+// Time Off (Admin/HR)
+const TimeOffPage = lazy(() => import('@/features/timeOff/TimeOffPage'));
+
+// Payroll & Payruns
+const PayrollPage = lazy(() => import('@/features/payroll/PayrollPage'));
+const PayrunDetailPage = lazy(() => import('@/features/payroll/PayrunDetailPage'));
+
+// Employee Self-Service
+const MyAttendancePage = lazy(() => import('@/features/selfService/MyAttendancePage'));
+const MyTimeOffPage = lazy(() => import('@/features/selfService/MyTimeOffPage'));
+const MyPayslipsPage = lazy(() => import('@/features/selfService/MyPayslipsPage'));
+
+// Role definitions
 const HR_ROLES = ['HR_MANAGER', 'HR_PAYROLL_USER', 'HR_PAYROLL_MANAGER', 'ADMIN'];
+const PAYROLL_ROLES = ['HR_PAYROLL_USER', 'HR_PAYROLL_MANAGER', 'ADMIN'];
 
 export function AppRoutes() {
   const { user } = useAuthStore();
@@ -40,64 +63,30 @@ export function AppRoutes() {
               }
             />
 
-            {/* Self-Service Profile Route (accessible to all authenticated, primary landing for EMPLOYEE) */}
+            {/* Self-Service Routes (accessible to all authenticated users) */}
             <Route path="/profile" element={<SelfServiceProfilePage />} />
+            <Route path="/my-attendance" element={<MyAttendancePage />} />
+            <Route path="/my-time-off" element={<MyTimeOffPage />} />
+            <Route path="/my-payslips" element={<MyPayslipsPage />} />
 
-            {/* HR / Admin Protected Employee Module Routes */}
+            {/* HR / Admin Employee Directory Routes */}
             <Route element={<ProtectedRoute allowedRoles={HR_ROLES} />}>
               <Route path="/employees" element={<EmployeeListPage />} />
               <Route path="/employees/kanban" element={<EmployeeKanbanPage />} />
               <Route path="/employees/new" element={<EmployeeFormPage />} />
               <Route path="/employees/:id" element={<EmployeeDetailPage />} />
               <Route path="/employees/:id/edit" element={<EmployeeFormPage />} />
+              <Route path="/departments" element={<DepartmentsPage />} />
+              <Route path="/contracts" element={<ContractsPage />} />
+              <Route path="/attendance" element={<AttendancePage />} />
+              <Route path="/time-off" element={<TimeOffPage />} />
             </Route>
 
-            {/* Placeholder Routes for Subsequent Phases */}
-            <Route
-              path="/departments"
-              element={
-                <PlaceholderModulePage
-                  moduleName="Departments"
-                  phaseDescription="Department organization, budget lines, and hierarchy management."
-                />
-              }
-            />
-            <Route
-              path="/contracts"
-              element={
-                <PlaceholderModulePage
-                  moduleName="Contracts"
-                  phaseDescription="Contract agreements, salary structure binding, and wage history."
-                />
-              }
-            />
-            <Route
-              path="/attendance"
-              element={
-                <PlaceholderModulePage
-                  moduleName="Attendance"
-                  phaseDescription="Daily clock-in/out tracking, biometric sync, and hours calculation."
-                />
-              }
-            />
-            <Route
-              path="/time-off"
-              element={
-                <PlaceholderModulePage
-                  moduleName="Time Off"
-                  phaseDescription="Leave quotas, time-off requests approval workflow, and balance deductions."
-                />
-              }
-            />
-            <Route
-              path="/payroll"
-              element={
-                <PlaceholderModulePage
-                  moduleName="Payroll & Payslips"
-                  phaseDescription="Two-step payrun execution wizard, payslip computations, and PDF export."
-                />
-              }
-            />
+            {/* Payroll Routes */}
+            <Route element={<ProtectedRoute allowedRoles={PAYROLL_ROLES} />}>
+              <Route path="/payroll" element={<PayrollPage />} />
+              <Route path="/payroll/payruns/:id" element={<PayrunDetailPage />} />
+            </Route>
           </Route>
         </Route>
 
