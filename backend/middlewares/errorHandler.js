@@ -5,7 +5,11 @@ import { Prisma } from '@prisma/client';
 
 function mapPrismaError(err) {
   switch (err.code) {
-    case 'P2002': return { statusCode: 409, message: 'A record with this value already exists.' };
+    case 'P2002': {
+      const target = Array.isArray(err.meta?.target) ? err.meta.target.join(', ') : err.meta?.target;
+      const detail = target ? ` (${target})` : '';
+      return { statusCode: 409, message: `A record with this value already exists${detail}.` };
+    }
     case 'P2025': return { statusCode: 404, message: 'Record not found.' };
     case 'P2003': return { statusCode: 409, message: 'Operation violates a related record constraint.' };
     default: return { statusCode: 500, message: 'Database error.' };

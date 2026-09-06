@@ -13,7 +13,13 @@ export async function listUsers(query) {
   const where = {};
   if (query.role) where.role = query.role;
   if (query.isActive !== undefined) where.isActive = query.isActive;
-  if (query.search) where.email = { contains: query.search, mode: 'insensitive' };
+  if (query.search) {
+    where.OR = [
+      { email: { contains: query.search, mode: 'insensitive' } },
+      { employee: { fullName: { contains: query.search, mode: 'insensitive' } } },
+      { employee: { employeeCode: { contains: query.search, mode: 'insensitive' } } },
+    ];
+  }
 
   const [total, users] = await Promise.all([
     prisma.user.count({ where }),

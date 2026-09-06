@@ -1,16 +1,13 @@
 import React, { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ShieldCheck, Search, UserCog, AlertCircle, RefreshCw } from 'lucide-react';
+import { ShieldCheck, Search, UserCog, AlertCircle, X } from 'lucide-react';
 import { usersApi } from '@/api/users.api';
 import { useAuthStore } from '@/features/auth/authStore';
 import { DataTable } from '@/components/ui/DataTable';
-import { Pagination } from '@/components/ui/Pagination';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import { Modal } from '@/components/ui/Modal';
 import { Badge } from '@/components/ui/Badge';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { TableSkeleton } from '@/components/ui/Skeleton';
 import { toast } from '@/components/ui/Toast';
 import { useDebounce } from '@/hooks/useDebounce';
 import { usePagination } from '@/hooks/usePagination';
@@ -321,26 +318,59 @@ export default function UsersPage() {
       </div>
 
       {/* Filter Toolbar */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+      <div className="bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-subtle flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        {/* Search */}
+        <div className="relative flex-1 sm:max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-slate-500 pointer-events-none" />
           <input
             id="users-search"
             type="text"
             value={search}
             onChange={handleSearchChange}
-            placeholder="Search by email…"
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent placeholder:text-slate-400"
+            placeholder="Search by email, name, or employee code…"
+            className="w-full pl-9 pr-8 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/60 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:focus:ring-brand-400 focus:bg-white dark:focus:bg-slate-800 transition-colors"
           />
+          {search && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearch('');
+                onPageChange(1);
+              }}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-0.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              title="Clear search"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
         </div>
-        <Select
-          id="users-role-filter"
-          value={roleFilter}
-          onChange={handleRoleFilterChange}
-          options={roleFilterOptions}
-          dense
-          className="sm:w-44"
-        />
+
+        {/* Role Filter & Reset */}
+        <div className="flex items-center gap-2.5">
+          <div className="w-full sm:w-48">
+            <Select
+              id="users-role-filter"
+              value={roleFilter}
+              onChange={handleRoleFilterChange}
+              options={roleFilterOptions}
+              dense
+            />
+          </div>
+          {(search || roleFilter) && (
+            <Button
+              variant="ghost"
+              size="xs"
+              onClick={() => {
+                setSearch('');
+                setRoleFilter('');
+                onPageChange(1);
+              }}
+              className="text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 whitespace-nowrap"
+            >
+              Reset
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Hierarchy Legend */}
@@ -369,34 +399,32 @@ export default function UsersPage() {
       </div>
 
       {/* Table */}
-      {isLoading ? (
-        <TableSkeleton rows={8} cols={5} />
-      ) : users.length === 0 ? (
-        <EmptyState
-          icon={UserCog}
-          title="No users found"
-          description="Adjust your search or role filter to see results."
-        />
-      ) : (
-        <DataTable
-          columns={columns}
-          data={users}
-          keyField="id"
-          emptyMessage="No users match your search."
-        />
-      )}
-
-      {/* Pagination */}
-      {meta && meta.totalPages > 1 && (
-        <Pagination
-          page={meta.page}
-          totalPages={meta.totalPages}
-          total={meta.total}
-          limit={limit}
-          onPageChange={onPageChange}
-          onLimitChange={onLimitChange}
-        />
-      )}
+      <DataTable
+        columns={columns}
+        data={users}
+        isLoading={isLoading}
+        keyField="id"
+        meta={meta}
+        onPageChange={onPageChange}
+        onLimitChange={onLimitChange}
+        emptyTitle="No users found"
+        emptyDescription="Adjust your search or role filter to see results."
+        emptyAction={
+          (search || roleFilter) ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSearch('');
+                setRoleFilter('');
+                onPageChange(1);
+              }}
+            >
+              Clear Filters
+            </Button>
+          ) : null
+        }
+      />
 
       {/* Role Change Modal */}
       <RoleChangeModal

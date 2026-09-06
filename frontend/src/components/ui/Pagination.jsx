@@ -3,12 +3,19 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
 export function Pagination({
-  meta = { page: 1, limit: 20, total: 0, totalPages: 1 },
+  meta,
+  page: pageProp,
+  limit: limitProp,
+  total: totalProp,
+  totalPages: totalPagesProp,
   onPageChange,
   onLimitChange,
   className,
 }) {
-  const { page = 1, limit = 20, total = 0, totalPages = 1 } = meta;
+  const page = meta?.page ?? pageProp ?? 1;
+  const limit = meta?.limit ?? limitProp ?? 20;
+  const total = meta?.total ?? totalProp ?? 0;
+  const totalPages = meta?.totalPages ?? totalPagesProp ?? 1;
 
   const startRecord = total === 0 ? 0 : (page - 1) * limit + 1;
   const endRecord = Math.min(page * limit, total);
@@ -60,7 +67,11 @@ export function Pagination({
               onChange={(e) => onLimitChange(Number(e.target.value))}
               className="rounded border border-slate-200 dark:border-slate-700 py-0.5 px-1.5 text-xs bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-brand-500"
             >
+              {!['10', '15', '20', '50', '100'].includes(String(limit)) && (
+                <option value={limit}>{limit}</option>
+              )}
               <option value="10">10</option>
+              <option value="15">15</option>
               <option value="20">20</option>
               <option value="50">50</option>
               <option value="100">100</option>

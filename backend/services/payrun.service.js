@@ -2,7 +2,7 @@ import { prisma } from '../configs/db.js';
 import ApiError from '../utils/ApiError.js';
 import { getActiveContractForPeriod } from './contract.service.js';
 import { computeSalaryRules } from '../utils/salaryEngine.js';
-import { nextPayrunRef, nextPayslipRef, periodLabel } from '../utils/reference.js';
+import { nextPayrunRef, nextPayslipRef, nextPayslipRefs, periodLabel } from '../utils/reference.js';
 import { buildPaginationMeta, buildOrderBy } from '../utils/pagination.js';
 import { renderPayslipPdf } from '../utils/payslipPdf.js';
 import { sendMail, sleep, classifySmtpError } from '../utils/email.js';
@@ -221,12 +221,19 @@ export async function create(data, createdById) {
     throw ApiError.unprocessable('No eligible employees for this payrun.');
   }
 
-  const label = periodLabel(periodStart);
-  const reference = await nextPayrunRef();
-  const payslipRefs = [];
-  for (let i = 0; i < eligible.length; i += 1) {
-    payslipRefs.push(await nextPayslipRef());
+  if (data.reference) {
+    const existing = await prisma.payrun.findFirst({
+      where: { reference: data.reference },
+      select: { id: true },
+    });
+    if (existing) {
+      throw ApiError.conflict(`Payrun reference '${data.reference}' already exists.`);
+    }
   }
+
+  const label = periodLabel(periodStart);
+  const reference = data.reference ?? await nextPayrunRef();
+  const payslipRefs = await nextPayslipRefs(eligible.length);
 
   const payrun = await prisma.$transaction(async (tx) => {
     const run = await tx.payrun.create({

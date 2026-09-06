@@ -1,15 +1,42 @@
 import { prisma } from '../configs/db.js';
 
-export async function nextReference(prefix, model, field = 'reference') {
+export async function nextReferenceBatch(prefix, model, count = 1, field = 'reference') {
+  if (count <= 0) return [];
   const year = new Date().getFullYear();
   const pattern = `${prefix}-${year}-`;
-  const latest = await model.findFirst({
+
+  const existing = await model.findMany({
     where: { [field]: { startsWith: pattern } },
-    orderBy: { [field]: 'desc' },
     select: { [field]: true },
   });
-  const seq = latest ? Number(latest[field].split('-').pop()) + 1 : 1;
-  return `${pattern}${String(seq).padStart(4, '0')}`;
+
+  const existingSet = new Set(existing.map((r) => r[field]));
+  let maxSeq = 0;
+  for (const ref of existingSet) {
+    const part = ref.split('-').pop();
+    const num = parseInt(part, 10);
+    if (!isNaN(num) && num > maxSeq) {
+      maxSeq = num;
+    }
+  }
+
+  let currentSeq = maxSeq + 1;
+  const refs = [];
+  while (refs.length < count) {
+    const candidate = `${pattern}${String(currentSeq).padStart(4, '0')}`;
+    if (!existingSet.has(candidate)) {
+      refs.push(candidate);
+      existingSet.add(candidate);
+    }
+    currentSeq += 1;
+  }
+
+  return refs;
+}
+
+export async function nextReference(prefix, model, field = 'reference') {
+  const [ref] = await nextReferenceBatch(prefix, model, 1, field);
+  return ref;
 }
 
 export async function nextEmployeeCode() {
@@ -26,6 +53,10 @@ export async function nextPayrunRef() {
 
 export async function nextPayslipRef() {
   return nextReference('PS', prisma.payslip);
+}
+
+export async function nextPayslipRefs(count) {
+  return nextReferenceBatch('PS', prisma.payslip, count);
 }
 
 export async function nextTimeOffRequestRef() {

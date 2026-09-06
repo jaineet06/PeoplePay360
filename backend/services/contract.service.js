@@ -115,15 +115,33 @@ export async function getById(id) {
 }
 
 export async function create(data) {
+  if (data.reference) {
+    const existing = await prisma.contract.findFirst({
+      where: { reference: data.reference },
+      select: { id: true },
+    });
+    if (existing) {
+      throw ApiError.conflict(`Contract reference '${data.reference}' already exists.`);
+    }
+  }
+
   const reference = data.reference ?? await nextContractRef();
   const status = data.status ?? 'DRAFT';
+  const startDate = toDate(data.startDate);
+  const endDate = data.endDate ? toDate(data.endDate) : null;
 
   return prisma.$transaction(async (tx) => {
     if (status === 'ACTIVE') {
-      await assertNoActiveOverlap(tx, data.employeeId, data.startDate, data.endDate ?? null);
+      await assertNoActiveOverlap(tx, data.employeeId, startDate, endDate);
     }
     const contract = await tx.contract.create({
-      data: { ...data, reference, status },
+      data: {
+        ...data,
+        reference,
+        status,
+        startDate,
+        endDate,
+      },
       include: {
         employee: { select: { id: true, employeeCode: true, fullName: true } },
         salaryStructure: { select: { id: true, code: true, name: true } },
@@ -136,8 +154,18 @@ export async function create(data) {
 export async function update(id, data) {
   const existing = await getById(id);
   const nextStatus = data.status ?? existing.status;
-  const nextStart = data.startDate ?? existing.startDate;
-  const nextEnd = data.endDate !== undefined ? data.endDate : existing.endDate;
+  const nextStart = data.startDate ? toDate(data.startDate) : existing.startDate;
+  const nextEnd = data.endDate !== undefined ? (data.endDate ? toDate(data.endDate) : null) : existing.endDate;
+
+  if (data.reference && data.reference !== existing.reference) {
+    const duplicate = await prisma.contract.findFirst({
+      where: { reference: data.reference, id: { not: id } },
+      select: { id: true },
+    });
+    if (duplicate) {
+      throw ApiError.conflict(`Contract reference '${data.reference}' already exists.`);
+    }
+  }
 
   return prisma.$transaction(async (tx) => {
     if (nextStatus === 'ACTIVE') {
@@ -145,7 +173,11 @@ export async function update(id, data) {
     }
     const contract = await tx.contract.update({
       where: { id },
-      data,
+      data: {
+        ...data,
+        ...(data.startDate ? { startDate: nextStart } : {}),
+        ...(data.endDate !== undefined ? { endDate: nextEnd } : {}),
+      },
       include: {
         employee: { select: { id: true, employeeCode: true, fullName: true } },
         salaryStructure: { select: { id: true, code: true, name: true } },
